@@ -7,3 +7,6 @@ primitive_states/
 all_last_state_files_*.txt
 all*.gif
 env_construction/
+data
+*.whl
+output

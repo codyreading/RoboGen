@@ -8,6 +8,7 @@ from gpt_4.prompts.utils import build_task_given_text, parse_task_response
 from gpt_4.query import query
 
 task_user_contents = """
+<<<<<<< HEAD
 I will give you an articulated object, with its articulation tree and semantics. Your goal is to imagine some tasks that a robotic arm can perform with this articulated object in household scenarios. You can think of the robotic arm as a Franka Panda robot. The task will be built in a simulator for the robot to learn it. 
 
 Focus on manipulation or interaction with the object itself. Sometimes the object will have functions, e.g., a microwave can be used to heat food, in these cases, feel free to include other objects that are needed for the task. 
@@ -22,15 +23,38 @@ Links: Links of the articulated objects that are required to perform the task.
 - Link 2: reasons why this link is needed for the task
 - …
 Joints: Joints of the articulated objects that are required to perform the task. 
+=======
+I will give you an articulated object, with its articulation tree and semantics. Your goal is to imagine some tasks that a robotic arm can perform with this articulated object in household scenarios. You can think of the robotic arm as a Franka Panda robot. The task will be built in a simulator for the robot to learn it.
+
+Focus on manipulation or interaction with the object itself. Sometimes the object will have functions, e.g., a microwave can be used to heat food, in these cases, feel free to include other objects that are needed for the task.
+Please do not think of tasks that try to assemble or disassemble the object. Do not think of tasks that aim to clean the object or check its functionality.
+
+For each task you imagined, please write in the following format:
+Task name: the name of the task.
+Description: some basic descriptions of the tasks.
+Additional Objects: Additional objects other than the provided articulated object required for completing the task.
+Links: Links of the articulated objects that are required to perform the task.
+- Link 1: reasons why this link is needed for the task
+- Link 2: reasons why this link is needed for the task
+- …
+Joints: Joints of the articulated objects that are required to perform the task.
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 - Joint 1: reasons why this joint is needed for the task
 - Joint 2: reasons why this joint is needed for the task
 - …
 
 
+<<<<<<< HEAD
 Example Input: 
 
 ```Oven articulation tree
 links: 
+=======
+Example Input:
+
+```Oven articulation tree
+links:
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 base
 link_0
 link_1
@@ -41,7 +65,11 @@ link_5
 link_6
 link_7
 
+<<<<<<< HEAD
 joints: 
+=======
+joints:
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 joint_name: joint_0 joint_type: revolute parent_link: link_7 child_link: link_0
 joint_name: joint_1 joint_type: continuous parent_link: link_7 child_link: link_1
 joint_name: joint_2 joint_type: continuous parent_link: link_7 child_link: link_2
@@ -69,8 +97,13 @@ Task Name: Open Oven Door
 Description: The robotic arm will open the oven door.
 Additional Objects: None
 Links:
+<<<<<<< HEAD
 - link_0: from the semantics, this is the door of the oven. The robot needs to approach this door in order to open it. 
 Joints: 
+=======
+- link_0: from the semantics, this is the door of the oven. The robot needs to approach this door in order to open it.
+Joints:
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 - joint_0: from the articulation tree, this is the revolute joint that connects link_0. Therefore, the robot needs to actuate this joint for opening the door.
 
 
@@ -83,7 +116,11 @@ Joints:
 - joint_1: joint_1 connects link_1 from the articulation tree. The robot needs to actuate it to rotate link_1 to the desired temperature.
 
 
+<<<<<<< HEAD
 Task Name: Heat a hamburger Inside Oven 
+=======
+Task Name: Heat a hamburger Inside Oven
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 Description: The robot arm places a hamburger inside the oven, and sets the oven temperature to be appropriate for heating the hamburger.
 Additional Objects: hamburger
 Links:
@@ -96,7 +133,11 @@ Joints:
 Task Name: Set Oven Timer
 Description: The robot arm turns a timer knob to set cooking time for the food.
 Additional Objects: None.
+<<<<<<< HEAD
 Links: 
+=======
+Links:
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 - link_2: link_2 is assumed to be the knob for controlling the cooking time. The robot needs to approach link_2 to set the cooking time.
 Joints:
 - joint_2: from the articulation tree, joint_2 connects link_2. The robot needs to actuate joint_2 to rotate link_2 to the desired position, setting the oven timer.
@@ -105,12 +146,21 @@ Joints:
 Can you do the same for the following object:
 """
 
+<<<<<<< HEAD
 # TODO: add another example where the ambiguous description is changed to be a precise description of the object. 
 
 def generate_task(object_category=None, object_path=None, existing_response=None, temperature_dict=None, 
                   model_dict=None, meta_path="generated_tasks"):
     # send the object articulation tree, semantics file and get task descriptions, invovled objects and joints
     # randomly sample an object for generation. 
+=======
+# TODO: add another example where the ambiguous description is changed to be a precise description of the object.
+
+def generate_task(object_category=None, object_path=None, existing_response=None, temperature_dict=None,
+                  model_dict=None, meta_path="generated_tasks", output_dir="data"):
+    # send the object articulation tree, semantics file and get task descriptions, invovled objects and joints
+    # randomly sample an object for generation.
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 
     object_cetegories = list(partnet_mobility_dict.keys())
     if object_category is None:
@@ -118,11 +168,19 @@ def generate_task(object_category=None, object_path=None, existing_response=None
     if object_path is None:
         possible_object_ids = partnet_mobility_dict[object_category]
         object_path = possible_object_ids[np.random.randint(len(possible_object_ids))]
+<<<<<<< HEAD
     
     articulation_tree_path = f"data/dataset/{object_path}/link_and_joint.txt"
     with open(articulation_tree_path, 'r') as f:
         articulation_tree = f.readlines()
     
+=======
+
+    articulation_tree_path = f"data/dataset/{object_path}/link_and_joint.txt"
+    with open(articulation_tree_path, 'r') as f:
+        articulation_tree = f.readlines()
+
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
     semantics = f"data/dataset/{object_path}/semantics.txt"
     with open(semantics, 'r') as f:
         semantics = f.readlines()
@@ -142,7 +200,13 @@ def generate_task(object_category=None, object_path=None, existing_response=None
         system = "You are a helpful assistant."
         ts = time.time()
         time_string = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
+<<<<<<< HEAD
         save_folder = "data/{}/{}_{}_{}".format(meta_path, object_category, object_path, time_string)
+=======
+        save_folder = "{}/{}/{}_{}_{}".format(output_dir, meta_path, object_category, object_path, time_string)
+        breakpoint()
+
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
         if not os.path.exists(save_folder + "/gpt_response"):
             os.makedirs(save_folder + "/gpt_response")
 
@@ -152,16 +216,27 @@ def generate_task(object_category=None, object_path=None, existing_response=None
         print("=" * 20, "generating task", "=" * 20)
         print("=" * 50)
 
+<<<<<<< HEAD
         task_response = query(system, [task_user_contents_filled], [], save_path=save_path, debug=False, 
                               temperature=temperature_dict['task_generation'],
                               model=model_dict['task_generation'])
    
+=======
+        task_response = query(system, [task_user_contents_filled], [], save_path=save_path, debug=False,
+                              temperature=temperature_dict['task_generation'],
+                              model=model_dict['task_generation'])
+
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
     else:
         with open(existing_response, 'r') as f:
             data = json.load(f)
         task_response = data["res"]
         print(task_response)
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
     ### generate task yaml config
     task_names, task_descriptions, additional_objects, links, joints = parse_task_response(task_response)
     task_number = len(task_names)
@@ -177,10 +252,17 @@ def generate_task(object_category=None, object_path=None, existing_response=None
         involved_links = links[task_idx]
         involved_joints = joints[task_idx]
 
+<<<<<<< HEAD
         config_path = build_task_given_text(object_category, task_name, task_description, additional_object, involved_links, involved_joints, 
+=======
+        config_path = build_task_given_text(object_category, task_name, task_description, additional_object, involved_links, involved_joints,
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
                           articulation_tree_filled, semantics_filled, object_path, save_folder, temperature_dict, model_dict=model_dict)
         all_config_paths.append(config_path)
 
     return all_config_paths
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d

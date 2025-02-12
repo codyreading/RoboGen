@@ -3,13 +3,15 @@ import os
 import time
 import json
 
-os.environ["OPENAI_API_KEY"] = os.environ["YUFEI_OPENAI_API_KEY"] # put your api key here
 def query(system, user_contents, assistant_contents, model='gpt-4', save_path=None, temperature=1, debug=False):
-    
+
+    if os.environ["OPENAI_API_KEY"] == "":
+        raise ValueError("Invalid OPENAI_API_KEY. Please set export OPENAI_API_KEY=$KEY")
+
     for user_content, assistant_content in zip(user_contents, assistant_contents):
         user_content = user_content.split("\n")
         assistant_content = assistant_content.split("\n")
-        
+
         for u in user_content:
             print(u)
         print("=====================================")
@@ -27,7 +29,6 @@ def query(system, user_contents, assistant_contents, model='gpt-4', save_path=No
     print("=====================================")
 
     start = time.time()
-    
     num_assistant_mes = len(assistant_contents)
     messages = []
 
@@ -45,8 +46,8 @@ def query(system, user_contents, assistant_contents, model='gpt-4', save_path=No
     )
 
     result = ''
-    for choice in response.choices: 
-        result += choice.message.content 
+    for choice in response.choices:
+        result += choice.message.content
 
     end = time.time()
     used_time = end - start
@@ -57,4 +58,3 @@ def query(system, user_contents, assistant_contents, model='gpt-4', save_path=No
             json.dump({"used_time": used_time, "res": result, "system": system, "user": user_contents, "assistant": assistant_contents}, f, indent=4)
 
     return result
-

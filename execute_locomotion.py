@@ -114,8 +114,6 @@ class CEMPolicy(object):
         print("cem finished planning!")
         return soln[0]
 
-    
-
 if __name__ == '__main__':
     import importlib
     import yaml
@@ -133,7 +131,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     time_string = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
-    robot_name = np.random.choice(['anymal', "a1"])
+    robot_name = np.random.choice(['anymal', "a1", "atlas"])
 
     horizon = 40
     config={
@@ -174,7 +172,6 @@ if __name__ == '__main__':
                         max_iters=default_cem_kwargs['max_iters'],
                         population_size=default_cem_kwargs['population_size'],
                         num_elites=default_cem_kwargs['num_elites'])
-                            
     # Run policy
 
     all_rbgs = []
