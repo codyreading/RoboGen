@@ -13,7 +13,7 @@ def visualize(env, output_path):
 def main(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "scene.gif"
+    output_path = output_dir /  f"{Path(args.task_config_path).stem}.gif"
 
     env = get_env(args.task_config_path)
     visualize(env, output_path)
