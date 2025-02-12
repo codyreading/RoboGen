@@ -7,8 +7,9 @@ from objaverse_utils.utils import partnet_mobility_dict
 from gpt_4.prompts.utils import build_task_given_text, parse_task_response
 from gpt_4.query import query
 
+from gpt_4.prompts.task_specific_prompt import get_task_specific_prompt
+
 task_user_contents = """
-<<<<<<< HEAD
 I will give you an articulated object, with its articulation tree and semantics. Your goal is to imagine some tasks that a robotic arm can perform with this articulated object in household scenarios. You can think of the robotic arm as a Franka Panda robot. The task will be built in a simulator for the robot to learn it.
 
 Focus on manipulation or interaction with the object itself. Sometimes the object will have functions, e.g., a microwave can be used to heat food, in these cases, feel free to include other objects that are needed for the task.
@@ -23,38 +24,15 @@ Links: Links of the articulated objects that are required to perform the task.
 - Link 2: reasons why this link is needed for the task
 - …
 Joints: Joints of the articulated objects that are required to perform the task.
-=======
-I will give you an articulated object, with its articulation tree and semantics. Your goal is to imagine some tasks that a robotic arm can perform with this articulated object in household scenarios. You can think of the robotic arm as a Franka Panda robot. The task will be built in a simulator for the robot to learn it.
-
-Focus on manipulation or interaction with the object itself. Sometimes the object will have functions, e.g., a microwave can be used to heat food, in these cases, feel free to include other objects that are needed for the task.
-Please do not think of tasks that try to assemble or disassemble the object. Do not think of tasks that aim to clean the object or check its functionality.
-
-For each task you imagined, please write in the following format:
-Task name: the name of the task.
-Description: some basic descriptions of the tasks.
-Additional Objects: Additional objects other than the provided articulated object required for completing the task.
-Links: Links of the articulated objects that are required to perform the task.
-- Link 1: reasons why this link is needed for the task
-- Link 2: reasons why this link is needed for the task
-- …
-Joints: Joints of the articulated objects that are required to perform the task.
->>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 - Joint 1: reasons why this joint is needed for the task
 - Joint 2: reasons why this joint is needed for the task
 - …
 
 
-<<<<<<< HEAD
 Example Input:
 
 ```Oven articulation tree
 links:
-=======
-Example Input:
-
-```Oven articulation tree
-links:
->>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 base
 link_0
 link_1
@@ -65,11 +43,7 @@ link_5
 link_6
 link_7
 
-<<<<<<< HEAD
 joints:
-=======
-joints:
->>>>>>> d8d205b1dbb3453918ef1e2b7137c377dcf4ca1d
 joint_name: joint_0 joint_type: revolute parent_link: link_7 child_link: link_0
 joint_name: joint_1 joint_type: continuous parent_link: link_7 child_link: link_1
 joint_name: joint_2 joint_type: continuous parent_link: link_7 child_link: link_2
@@ -136,7 +110,7 @@ Can you do the same for the following object:
 # TODO: add another example where the ambiguous description is changed to be a precise description of the object.
 
 def generate_task(object_category=None, object_path=None, existing_response=None, temperature_dict=None,
-                  model_dict=None, meta_path="generated_tasks", output_dir="data"):
+                  model_dict=None, meta_path="generated_tasks", output_dir="data", task=None):
     # send the object articulation tree, semantics file and get task descriptions, invovled objects and joints
     # randomly sample an object for generation.
 
@@ -155,7 +129,11 @@ def generate_task(object_category=None, object_path=None, existing_response=None
     with open(semantics, 'r') as f:
         semantics = f.readlines()
 
-    task_user_contents_filled = copy.deepcopy(task_user_contents)
+    if task is None:
+        task_user_contents_filled = copy.deepcopy(task_user_contents)
+    else:
+        task_user_contents_filled = get_task_specific_prompt(task)
+
     articulation_tree_filled = """
 ```{} articulation tree
 {}

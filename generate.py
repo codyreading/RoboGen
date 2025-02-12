@@ -27,19 +27,23 @@ model_dict = {
     "spatial_relationship": model_name
 }
 
-def create_tasks(output_dir):
-    object_category = partnet_categories[np.random.randint(len(partnet_categories))]
-    all_task_config_paths = generate_task_manipulation(object_category, temperature_dict=temperature_dict, model_dict=model_dict, meta_path="generated", output_dir=output_dir)
+def create_task_configs(output_dir, category, task=None):
+    all_task_config_paths = generate_task_manipulation(category,
+                                                       temperature_dict=temperature_dict,
+                                                       model_dict=model_dict,
+                                                       meta_path="generated",
+                                                       output_dir=output_dir,
+                                                       task=task)
     return all_task_config_paths
 
 def main(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    task_config_paths = create_tasks(output_dir)
+    task_config_paths = create_task_configs(output_dir, category=args.category, task=args.task)
 
     for task_config_path in task_config_paths:
-        output_path = output_dir / f"{task_config_path.stem}.gif"
+        output_path = output_dir / f"{Path(task_config_path).stem}.gif"
 
         env = get_env(task_config_path)
         visualize(env, output_path)
@@ -48,7 +52,14 @@ def main(args):
 if __name__ == "__main__":
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Generates a scene for a given task description.")
-    parser.add_argument('--task', type=str, help="Task description", default=None)
+    parser.add_argument('--task',
+                        type=str,
+                        help="Task description",
+                        default=None)
+    parser.add_argument('--category',
+                        type=str,
+                        help="Object category",
+                        default=None)
     parser.add_argument('--env',
                         default='open_the_dishwasher_door-v0',
                         help='Environment to train on (default: open_the_dishwasher_door-v0)')
