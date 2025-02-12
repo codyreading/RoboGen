@@ -142,7 +142,15 @@ def generate_task(object_category=None, object_path=None, existing_response=None
 ```{} semantics
 {}
 ```""".format(object_category, "".join(semantics))
+
+    task_filled = """
+```Task
+{}
+```""".format(task)
+
     task_user_contents_filled = task_user_contents_filled + articulation_tree_filled + semantics_filled
+    if task is not None:
+        task_user_contents_filled += task_filled
 
     if existing_response is None:
         system = "You are a helpful assistant."

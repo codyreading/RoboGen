@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generates a scene for a given task description.")
     parser.add_argument('--task_config_path',
                          type=str,
-                         default="/home/c84399429/Projects/RoboGen/data/generated_tasks_release/Fan_101494_2025-02-11-15-22-51/Adjust_Fan_Speed_The_robotic_arm_will_interact_with_the_speed_control_knob_assumed_to_be_on_the_fan_frame_to_adjust_the_speed_of_the_fan.yaml")
+                         default="example_tasks/Adjust_Chair_Position/Adjust_Chair_Position_The_robot_arm_will_adjust_the_position_of_the_unfolded_chair.yaml")
     parser.add_argument('--env',
                         default='open_the_dishwasher_door-v0',
                         help='Environment to train on (default: open_the_dishwasher_door-v0)')

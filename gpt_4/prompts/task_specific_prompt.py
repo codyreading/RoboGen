@@ -54,7 +54,7 @@ link_6 hinge knob
 link_7 heavy oven_body
 ```
 
-```Oven task
+```Task
 Open the oven door
 ```
 
@@ -70,4 +70,4 @@ Joints:
 
 Can you do the same for the following object and task:
 """
-return prompt
+    return prompt
