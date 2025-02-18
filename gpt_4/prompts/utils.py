@@ -8,36 +8,36 @@ from gpt_4.query import query
 from gpt_4.adjust_size import adjust_size_v2
 
 task_yaml_config_prompt = """
-I need you to describe the initial scene configuration for a given task in the following format, using a yaml file. This yaml file will help build the task in a simulator. The task is for a mobile Franka panda robotic arm to learn a manipulation skill in the simulator. The Franka panda arm is mounted on a floor, at location (1, 1, 0). It can move freely on the floor. The z axis is the gravity axis. 
+I need you to describe the initial scene configuration for a given task in the following format, using a yaml file. This yaml file will help build the task in a simulator. The task is for a mobile Franka panda robotic arm to learn a manipulation skill in the simulator. The Franka panda arm is mounted on a floor, at location (1, 1, 0). It can move freely on the floor. The z axis is the gravity axis.
 
 The format is as follows:
-```yaml 
+```yaml
 - use_table: whether the task requires using a table. This should be decided based on common sense. If a table is used, its location will be fixed at (0, 0, 0). The height of the table will be 0.6m. Usually, if the objects invovled in the task are usually placed on a table (not directly on the ground), then the task requires using a table.
 # for each object involved in the task, we need to specify the following fields for it.
 - type: mesh
   name: name of the object, so it can be referred to in the simulator
-  size: describe the scale of the object mesh using 1 number in meters. The scale should match real everyday objects. E.g., an apple is of scale 0.08m. You can think of the scale to be the longest dimension of the object. 
+  size: describe the scale of the object mesh using 1 number in meters. The scale should match real everyday objects. E.g., an apple is of scale 0.08m. You can think of the scale to be the longest dimension of the object.
   lang: this should be a language description of the mesh. The language should be a concise description of the obejct, such that the language description can be used to search an existing database of objects to find the object.
-  path: this can be a string showing the path to the mesh of the object. 
+  path: this can be a string showing the path to the mesh of the object.
   on_table: whether the object needs to be placed on the table (if there is a table needed for the task). This should be based on common sense and the requirement of the task. E.g., a microwave is usually placed on the table.
   center: the location of the object center. If there isn't a table needed for the task or the object does not need to be on the table, this center should be expressed in the world coordinate system. If there is a table in the task and the object needs to be placed on the table, this center should be expressed in terms of the table coordinate, where (0, 0, 0) is the lower corner of the table, and (1, 1, 1) is the higher corner of the table. In either case, you should try to specify a location such that there is no collision between objects.
   movable: if the object is movable or not in the simulator due to robot actions. This option should be falsed for most tasks; it should be true only if the task specifically requires the robot to move the object. This value can also be missing, which means the object is not movable.
 ```
 
-An example input includes the task names, task descriptions, and objects involved in the task. I will also provide with you the articulation tree and semantics of the articulated object. 
+An example input includes the task names, task descriptions, and objects involved in the task. I will also provide with you the articulation tree and semantics of the articulated object.
 This can be useful for knowing what parts are already in the articulated object, and thus you do not need to repeat those parts as separate objects in the yaml file.
 
 Your task includes two parts:
 1. Output the yaml configuration of the task.
-2. Sometimes, the task description / objects involved will refer to generic/placeholder objects, e.g., to place an "item" into the drawer, and to heat "food" in the microwave. In the generated yaml config, you should change these placeholder objects to be concrete objects in the lang field, e.g., change "item" to be a toy or a pencil, and "food" to be a hamburger, a bowl of soup, etc. 
+2. Sometimes, the task description / objects involved will refer to generic/placeholder objects, e.g., to place an "item" into the drawer, and to heat "food" in the microwave. In the generated yaml config, you should change these placeholder objects to be concrete objects in the lang field, e.g., change "item" to be a toy or a pencil, and "food" to be a hamburger, a bowl of soup, etc.
 
 Example input:
-Task Name: Insert Bread Slice 
+Task Name: Insert Bread Slice
 Description: The robotic arm will insert a bread slice into the toaster.
 Objects involved: Toaster, bread slice. Only the objects specified here should be included in the yaml file.
 
 ```Toaster articulation tree
-links: 
+links:
 base
 link_0
 link_1
@@ -46,7 +46,7 @@ link_3
 link_4
 link_5
 
-joints: 
+joints:
 joint_name: joint_0 joint_type: continuous parent_link: link_5 child_link: link_0
 joint_name: joint_1 joint_type: prismatic parent_link: link_5 child_link: link_1
 joint_name: joint_2 joint_type: prismatic parent_link: link_5 child_link: link_2
@@ -67,19 +67,19 @@ link_5 free toaster_body
 
 An example output:
 ```yaml
-- use_table: True ### Toaster and bread are usually put on a table. 
+- use_table: True ### Toaster and bread are usually put on a table.
 - type: mesh
   name: "Toaster"
   on_table: True # Toasters are usually put on a table.
-  center: (0.1, 0.1, 0) # Remember that when an object is placed on the table, the center is expressed in the table coordinate, where (0, 0, 0) is the lower corner and (1, 1, 1) is the higher corner of the table. Here we put the toaster near the lower corner of the table.  
+  center: (0.1, 0.1, 0) # Remember that when an object is placed on the table, the center is expressed in the table coordinate, where (0, 0, 0) is the lower corner and (1, 1, 1) is the higher corner of the table. Here we put the toaster near the lower corner of the table.
   size: 0.35 # the size of a toaster is roughly 0.35m
   lang: "a common toaster"
   path: "toaster.urdf"
 - type: mesh
   name: "bread slice"
-  on_table: True # Bread is usually placed on the table as well. 
-  center: (0.8, 0.7, 0) # Remember that when an object is placed on the table, the center is expressed in the table coordinate, where (0, 0, 0) is the lower corner and (1, 1, 1) is the higher corner of the table. Here we put the bread slice near the higher corner of the table.  
-  size: 0.1 # common size of a bread slice 
+  on_table: True # Bread is usually placed on the table as well.
+  center: (0.8, 0.7, 0) # Remember that when an object is placed on the table, the center is expressed in the table coordinate, where (0, 0, 0) is the lower corner and (1, 1, 1) is the higher corner of the table. Here we put the bread slice near the higher corner of the table.
+  size: 0.1 # common size of a bread slice
   lang: "a slice of bread"
   Path: "bread_slice.obj"
 ```
@@ -90,12 +90,12 @@ Description: The robotic arm will remove the lid from the pot.
 Objects involved: KitchenPot. Only the objects specified here should be included in the yaml file.
 
 ```KitchenPot articulation tree
-links: 
+links:
 base
 link_0
 link_1
 
-joints: 
+joints:
 joint_name: joint_0 joint_type: prismatic parent_link: link_1 child_link: link_0
 joint_name: joint_1 joint_type: fixed parent_link: base child_link: link_1
 ```
@@ -109,8 +109,8 @@ Output:
 - use_table: True # A kitchen pot is usually placed on the table.
 - type: mesh
   name: "KitchenPot"
-  on_table: True # kitchen pots are usually placed on a table. 
-  center: (0.3, 0.6, 0) # Remember that when an object is placed on the table, the center is expressed in the table coordinate, where (0, 0, 0) is the lower corner and (1, 1, 1) is the higher corner of the table. Here we put the kitchen pot just at a random location on the table.  
+  on_table: True # kitchen pots are usually placed on a table.
+  center: (0.3, 0.6, 0) # Remember that when an object is placed on the table, the center is expressed in the table coordinate, where (0, 0, 0) is the lower corner and (1, 1, 1) is the higher corner of the table. Here we put the kitchen pot just at a random location on the table.
   size: 0.28 # the size of a common kitchen pot is roughly 0.28m
   lang: "a common kitchen pot"
   path: "kitchen_pot.urdf"
@@ -124,12 +124,12 @@ Description: The robotic arm will push and move the chair to a target location.
 Objects involved: A chair. Only the objects here should be included in the yaml file.
 
 ```Chair articulation tree
-links: 
+links:
 base
 link_0
 link_1
 
-joints: 
+joints:
 joint_name: joint_0 joint_type: revolute parent_link: link_1 child_link: link_0
 joint_name: joint_1 joint_type: fixed parent_link: base child_link: link_1
 ```
@@ -156,16 +156,16 @@ Note in the above example we set the chair to be moveable so the robot can push 
 Another example:
 Task Name: Put an item into the box drawer
 Description: The robot will open the drawer of the box, and put an item into it.
-Objects involved: A box with drawer, an item to be placed in the drawer. 
+Objects involved: A box with drawer, an item to be placed in the drawer.
 
 ```Box articulation tree
-links: 
+links:
 base
 link_0
 link_1
 link_2
 
-joints: 
+joints:
 joint_name: joint_0 joint_type: revolute parent_link: link_2 child_link: link_0
 joint_name: joint_1 joint_type: prismatic parent_link: link_2 child_link: link_1
 joint_name: joint_2 joint_type: fixed parent_link: base child_link: link_2
@@ -189,7 +189,7 @@ Output:
     type: urdf
 -   path: "item.obj"
     center: (0.2, 0.4, 0)
-    lang: "A toy" # Note here, we changed the generic/placeholder "item" object to be a more concrete object: a toy. 
+    lang: "A toy" # Note here, we changed the generic/placeholder "item" object to be a more concrete object: a toy.
     name: "Item"
     on_table: true
     size: 0.05
@@ -202,13 +202,13 @@ Description: The robot will open the refrigerator door, and fetch an item from t
 Objects involved: A refrigerator, an item to be fetched from the refrigerator.
 
 ```Refirgerator articulation tree
-links: 
+links:
 base
 link_0
 link_1
 link_2
 
-joints: 
+joints:
 joint_name: joint_0 joint_type: fixed parent_link: base child_link: link_0
 joint_name: joint_1 joint_type: revolute parent_link: link_0 child_link: link_1
 joint_name: joint_2 joint_type: revolute parent_link: link_0 child_link: link_2
@@ -240,10 +240,10 @@ Output:
     type: mesh
 ```
 
-Rules: 
+Rules:
 - You do not need to include the robot in the yaml file.
 - The yaml file should only include the objects listed in "Objects involved".
-- Sometimes, the task description / objects involved will refer to generic/placeholder objects, e.g., to place an "item" into the drawer, and to heat "food" in the microwave. In the generated yaml config, you should change these placeholder objects to be concrete objects in the lang field, e.g., change "item" to be a toy or a pencil, and "food" to be a hamburger, a bowl of soup, etc. 
+- Sometimes, the task description / objects involved will refer to generic/placeholder objects, e.g., to place an "item" into the drawer, and to heat "food" in the microwave. In the generated yaml config, you should change these placeholder objects to be concrete objects in the lang field, e.g., change "item" to be a toy or a pencil, and "food" to be a hamburger, a bowl of soup, etc.
 
 
 Can you do this for the following task:
@@ -309,7 +309,7 @@ def parse_task_response(task_response):
 
     return task_names, task_descriptions, additional_objects, links, joints
 
-def build_task_given_text(object_category, task_name, task_description, additional_object, involved_links, involved_joints, 
+def build_task_given_text(object_category, task_name, task_description, additional_object, involved_links, involved_joints,
                           articulation_tree_filled, semantics_filled, object_path, save_folder, temperature_dict, model_dict=None):
     if model_dict is None:
         model_dict = {
@@ -334,17 +334,17 @@ def build_task_given_text(object_category, task_name, task_description, addition
     print("=" * 50)
     print("=" * 20, "generating task yaml config", "=" * 20)
     print("=" * 50)
-    task_yaml_response = query(system, [task_yaml_config_prompt_filled], [], save_path=save_path, debug=False, 
+    task_yaml_response = query(system, [task_yaml_config_prompt_filled], [], save_path=save_path, debug=False,
                             temperature=temperature_dict["yaml"], model=model_dict["yaml"])
     # NOTE: parse the yaml file and generate the task in the simulator.
-    description = f"{task_name}_{task_description}".replace(" ", "_").replace(".", "").replace(",", "")
+    description = f"{task_name}".replace(" ", "_").replace(".", "").replace(",", "")
     task_yaml_response = task_yaml_response.split("\n")
     size_save_path = os.path.join(save_folder, "gpt_response/size_{}.json".format(task_name))
-    parsed_yaml, save_name = parse_response_to_get_yaml(task_yaml_response, description, save_path=size_save_path, 
+    parsed_yaml, save_name = parse_response_to_get_yaml(task_yaml_response, description, save_path=size_save_path,
                                                         temperature=temperature_dict["size"], model=model_dict["size"])
 
     # NOTE: post-process such that articulated object is urdf.
-    # NOTE: post-process to include the reward asset path for reward generation. 
+    # NOTE: post-process to include the reward asset path for reward generation.
     for obj in parsed_yaml:
         if "name" in obj and obj['name'] == object_category:
             obj['type'] = 'urdf'
@@ -367,13 +367,13 @@ def build_task_given_text(object_category, task_name, task_description, addition
     print("=" * 50)
     print("=" * 20, "generating reward", "=" * 20)
     print("=" * 50)
-    solution_path = decompose_and_generate_reward_or_primitive(task_name, task_description, initial_config, 
-                                                                articulation_tree_filled, semantics_filled, 
-                                                                involved_links, involved_joints, object_path, 
+    solution_path = decompose_and_generate_reward_or_primitive(task_name, task_description, initial_config,
+                                                                articulation_tree_filled, semantics_filled,
+                                                                involved_links, involved_joints, object_path,
                                                                 yaml_file_path, save_path=reward_save_path,
                                                                 temperature=temperature_dict["reward"],
                                                                 model=model_dict["reward"])
-    
+
 
     ### generate joint angle
     save_path = os.path.join(save_folder, "gpt_response/joint_angle_{}.json".format(task_name))
@@ -383,8 +383,8 @@ def build_task_given_text(object_category, task_name, task_description, addition
     print("=" * 50)
     print("=" * 20, "generating initial joint angle", "=" * 20)
     print("=" * 50)
-    joint_angle_values = query_joint_angle(task_name, task_description, articulation_tree_filled, semantics_filled, 
-                                            involved_links, involved_joints, substeps, save_path=save_path, 
+    joint_angle_values = query_joint_angle(task_name, task_description, articulation_tree_filled, semantics_filled,
+                                            involved_links, involved_joints, substeps, save_path=save_path,
                                             temperature=temperature_dict['joint'], model=model_dict["joint"])
     joint_angle_values["set_joint_angle_object_name"] = object_category
 
@@ -398,8 +398,8 @@ def build_task_given_text(object_category, task_name, task_description, addition
     print("=" * 50)
     print("=" * 20, "generating initial spatial relationship", "=" * 20)
     print("=" * 50)
-    spatial_relationships = query_spatial_relationship(task_name, task_description, involved_objects, articulation_tree_filled, semantics_filled, 
-                                            involved_links, involved_joints, substeps, save_path=save_path, 
+    spatial_relationships = query_spatial_relationship(task_name, task_description, involved_objects, articulation_tree_filled, semantics_filled,
+                                            involved_links, involved_joints, substeps, save_path=save_path,
                                             temperature=temperature_dict['spatial_relationship'], model=model_dict["spatial_relationship"])
 
     config.append(dict(solution_path=solution_path))

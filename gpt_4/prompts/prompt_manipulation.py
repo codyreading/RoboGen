@@ -191,7 +191,6 @@ def generate_task(object_category=None, object_path=None, existing_response=None
                                                                                            temperature=temperature_dict["task_revision"],
                                                                                            model=model_dict['task_revision'])
     task_number = len(task_names)
-    breakpoint()
     print("task number: ", task_number)
 
     all_config_paths = []
