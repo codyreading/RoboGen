@@ -8,6 +8,7 @@ from gpt_4.prompts.utils import build_task_given_text, parse_task_response
 from gpt_4.query import query
 
 from gpt_4.prompts.task_specific_prompt import get_task_specific_prompt
+from gpt_4.prompts.revise_response import revise_response
 
 task_user_contents = """
 I will give you an articulated object, with its articulation tree and semantics. Your goal is to imagine some tasks that a robotic arm can perform with this articulated object in household scenarios. You can think of the robotic arm as a Franka Panda robot. The task will be built in a simulator for the robot to learn it.
@@ -132,7 +133,7 @@ def generate_task(object_category=None, object_path=None, existing_response=None
     if task is None:
         task_user_contents_filled = copy.deepcopy(task_user_contents)
     else:
-        task_user_contents_filled = get_task_specific_prompt(task)
+        task_user_contents_filled = get_task_specific_prompt()
 
     articulation_tree_filled = """
 ```{} articulation tree
@@ -178,7 +179,19 @@ def generate_task(object_category=None, object_path=None, existing_response=None
         print(task_response)
     ### generate task yaml config
     task_names, task_descriptions, additional_objects, links, joints = parse_task_response(task_response)
+
+    if task is not None:
+        task_names, task_descriptions, additional_objects, links, joints = revise_response(task=task,
+                                                                                           object_category=object_category,
+                                                                                           task_names=task_names,
+                                                                                           task_descriptions=task_descriptions,
+                                                                                           additional_objects=additional_objects,
+                                                                                           links=links,
+                                                                                           joints=joints,
+                                                                                           temperature=temperature_dict["task_revision"],
+                                                                                           model=model_dict['task_revision'])
     task_number = len(task_names)
+    breakpoint()
     print("task number: ", task_number)
 
     all_config_paths = []

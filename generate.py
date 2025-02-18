@@ -9,6 +9,7 @@ from visualize import get_env, visualize
 
 temperature_dict = {
     "task_generation": 0.6,
+    "task_revision": 0.0,
     "reward": 0.2,
     "yaml": 0.3,
     "size": 0.1,
@@ -20,6 +21,7 @@ model_name = "gpt-4"
 
 model_dict = {
     "task_generation": model_name,
+    "task_revision": model_name,
     "reward": model_name,
     "yaml": model_name,
     "size": model_name,
