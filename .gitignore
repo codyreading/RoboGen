@@ -9,4 +9,4 @@ all*.gif
 env_construction/
 data
 *.whl
-output
+output*
