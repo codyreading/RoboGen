@@ -22,8 +22,7 @@ CSV_FILE="experiments.csv"
 index=0
 
 # Set IFS to handle CSV properly (handle quoted values correctly)
-while IFS=, read -r category task
-do
+while IFS=, read -r category task || [[ -n "$category" ]]; do
     # Skip the header
     if [[ "$index" -eq 0 ]]; then
         ((index++))
@@ -36,12 +35,12 @@ do
     LOG_FILE="$LOG_DIR/${index}_${CATEGORY}.log"
     CMD="python generate.py --task ${TASK} --category ${CATEGORY} &>> ${LOG_FILE} &"
     echo $CMD
-    eval $CMD
+    #eval $CMD
 
     # Increment index
     ((index++))
 
-done < "$CSV_FILE"
+done < <(cat "$CSV_FILE")  # Ensure last line is processed
 
 
 echo "All tasks started. Check logs in $LOG_DIR"
