@@ -1,8 +1,8 @@
-def get_task_specific_prompt(task):
-    prompt = f"""
+def get_task_specific_prompt():
+    prompt = """
 I will give you an articulated object, with its articulation tree and semantics. I will also give you a basic task description that a robotic arm can perform with this articulated object in a household scenario. Your goal is to fully describe the task in a specific format. You can think of the robotic arm as a Franka Panda robot. The task will be built in a simulator for the robot to learn it.
 
-The task will focus on manipulation or interaction with the object itself. Sometimes the object will have functions, e.g., a microwave can be used to heat food, in these cases, feel free to include other objects that are needed for the task.
+The task will focus on manipulation or interaction with the object itself. Sometimes the object will have functions, e.g., a microwave can be used to heat food, in these cases, feel free to include other objects that are needed for the task. Sometimes the task description will specify additonal objects, make sure all of these objects are included as Additional Objects.
 
 Please write in the following format:
 Task name: the name of the task.
