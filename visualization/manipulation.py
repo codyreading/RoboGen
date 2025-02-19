@@ -49,7 +49,7 @@ def get_env(task_config_path,
     env.reset()
     return env
 
-def visualize(env, output_path, distance=1.6, azimuth_interval=5):
+def generate_images(env, distance=1.6, num_images=1, elevation=30):
     center = None
     if env.use_table:
         center = np.array([0, 0, 0.4])
@@ -66,5 +66,15 @@ def visualize(env, output_path, distance=1.6, azimuth_interval=5):
     if center is None:
         center = np.array([0, 0, 0.4])
 
-    rgbs, depths = take_round_images(env, center=center, distance=distance, azimuth_interval=azimuth_interval)
-    save_numpy_as_gif(np.array(rgbs), output_path,  fps=10)
+    azimuth_interval = int(360 / num_images)
+    rgbs, depths = take_round_images(env,
+                                     center=center,
+                                     distance=distance,
+                                     elevation=elevation,
+                                     azimuth_interval=azimuth_interval)
+    rgbs = np.array(rgbs)
+    return rgbs
+
+def visualize(env, output_path, num_images=72):
+    rgbs = generate_images(env, num_images=num_images)
+    save_numpy_as_gif(rgbs, output_path,  fps=10)
