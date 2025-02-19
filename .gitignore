@@ -10,3 +10,7 @@ env_construction/
 data
 *.whl
 output*
+logs*
+error*
+Archive
+.vscode

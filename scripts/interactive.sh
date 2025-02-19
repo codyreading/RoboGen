@@ -1,0 +1,1 @@
+srun -p h100-agent-10-dev --gres=gpu:1 --ntasks=1 --cpus-per-task=32 --pty bash
