@@ -1,4 +1,0 @@
- grasp the first door of the table
- open the first door of the table
- grasp the second door of the table
- open the second door of the table

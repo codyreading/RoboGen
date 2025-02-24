@@ -1,6 +1,0 @@
- grasp the dishwasher door
- open the dishwasher door
- grasp the dish
- move the dish into the dishwasher
- grasp the dishwasher door again
- close the dishwasher door

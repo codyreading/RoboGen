@@ -1,2 +1,0 @@
- grasp the globe
- rotate the globe horizontally

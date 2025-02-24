@@ -1,4 +1,0 @@
-primitive
-reward
-primitive
-reward
