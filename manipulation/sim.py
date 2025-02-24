@@ -608,6 +608,13 @@ class SimpleEnv(gym.Env):
                     obj_b_link_id = get_link_id_from_name(self, obj_b, obj_b_link)
                 else:
                     obj_b_link_id = -1
+
+                if "table" not in self.urdf_ids:
+                    if obj_a == "table" and "table":
+                        obj_a = "init_table"
+                    if obj_b == "table":
+                        obj_b = "init_table"
+
                 obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
 
                 obj_a_bbox_min, obj_a_bbox_max = self.get_aabb(obj_a_id)

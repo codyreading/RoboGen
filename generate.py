@@ -5,7 +5,6 @@ from visualization import manipulation
 
 from gpt_4.prompts.prompt_manipulation import generate_task as generate_task_manipulation
 from manipulation.partnet_category import partnet_categories
-from visualize import get_env, visualize
 
 temperature_dict = {
     "task_generation": 0.6,
@@ -47,8 +46,8 @@ def main(args):
     for task_config_path in task_config_paths:
         output_path = output_dir / f"{Path(task_config_path).stem}.gif"
 
-        env = get_env(task_config_path)
-        visualize(env, output_path)
+        env = manipulation.get_env(task_config_path)
+        manipulation.visualize(env, output_path)
 
 
 if __name__ == "__main__":

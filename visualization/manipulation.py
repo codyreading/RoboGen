@@ -1,8 +1,9 @@
 import os
 import yaml
 import numpy as np
-from manipulation.utils import build_up_env, take_round_images, save_numpy_as_gif
 
+from manipulation.utils import build_up_env, take_round_images, save_numpy_as_gif
+from utils import io_utils
 
 def get_env(task_config_path,
                          gui=False,
@@ -71,10 +72,22 @@ def generate_images(env, distance=1.6, num_images=1, elevation=30):
                                      center=center,
                                      distance=distance,
                                      elevation=elevation,
-                                     azimuth_interval=azimuth_interval)
-    rgbs = np.array(rgbs)
+                                     azimuth_interval=azimuth_interval,
+                                     camera_width=512,
+                                     camera_height=512)
     return rgbs
 
-def visualize(env, output_path, num_images=72):
+def visualize(env, output_path, as_images=False, num_images=72):
     rgbs = generate_images(env, num_images=num_images)
-    save_numpy_as_gif(rgbs, output_path,  fps=10)
+
+    if as_images:
+        save_images(images=rgbs, output_path=output_path)
+    else:
+        save_numpy_as_gif(np.array(rgbs), output_path, fps=10)
+
+def save_images(images, output_path):
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    for i, image in enumerate(images):
+        path = output_path / f"{i}.jpeg"
+        io_utils.save_image(image, path)
