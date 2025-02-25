@@ -10,12 +10,12 @@ def generate_images(env):
     return images
 
 def load_simulated_image():
-    path = "output/initial/Write_Smiley_Face/64.jpeg"
+    path = "/home/c84399429/RoboGen/output/initial/Wash_and_Dry_Clothes/33.jpeg"
     image = io_utils.load_image(path)
     return [image]
 
 def load_real_image():
-    path = "output/reflection/Pen_on_paper.jpg"
+    path = "/home/c84399429/RoboGen/data/ego4d/washing_machine.jpeg"
     image = io_utils.load_image(path)
     return [image]
 
@@ -26,38 +26,31 @@ def main(args):
     # Get images
     # env = manipulation.get_env(args.task_config_path)
     # simulated_images = generate_images(env=env)
-    # simulated_images = load_simulated_image()
-    # real_images = load_real_image()
+    simulated_images = load_simulated_image()
+    real_images = load_real_image()
 
     # # Reflect with VLM
-    # reflection = reflect_vlm(task="Write smiley face on a piece of paper",
+    # reflection = reflect_vlm(task="Wash and dry my clothes",
     #                          simulated_images=simulated_images,
     #                          real_images=real_images)
+    reflection = """SCALE ISSUES:
 
-    reflection = """
-### 1. SIZE ISSUES
+1. Washing Machine: Slightly smaller in simulation | May affect spatial planning | Increase size to match real-world dimensions.
+2. Detergent Bottles: Larger in simulation | Could impact user interaction | Reduce size for realistic handling.
 
-- **Pen**: **Too small** -> The pen appears undersized compared to the paper and the surface. -> **Fix needed**: Increase the size of the pen to better match typical pens.
-- **Paper**: **Too big** -> The paper looks oversized compared to the pen. -> **Fix needed**: Resize the paper to a more standard size relative to the pen.
+PLACEMENT ISSUES:
 
-### 2. PLACEMENT ISSUES
+1. Detergent Bottles: Positioned on the floor in simulation | Unnatural and impractical | Place on top of the washing machine.
+2. Laundry Pile: Floating slightly above the floor in simulation | Unrealistic appearance | Adjust to ensure contact with the floor.
 
-- **Pen**: **Unnatural position** -> The pen is positioned awkwardly and may be seen as floating off the paper. -> **Fix needed**: Adjust the position of the pen to be placed directly on top of the paper.
-- **Paper**: **Incorrectly placed** -> The paper seems misaligned or not centered on the surface. -> **Fix needed**: Center the paper on the surface to provide a more natural look for writing.
-
-
-### Summary of Issues
-
-- **Pen**: Too small -> Impact on task: Hard to write with -> Fix needed: Increase size.
-- **Paper**: Too big -> Impact on task: Disproportionate for writing -> Fix needed: Resize paper.
-- **Pen**: Unnatural position -> Impact on task: Not functional -> Fix needed: Place on paper.
-- **Paper**: Incorrectly placed -> Impact on task: Unnatural scene -> Fix needed: Center paper.
+SUMMARY:
+The primary issues involve the scaling of objects like the washing machine and detergent bottles, which could affect user interaction and spatial planning. Additionally, the placement of detergent bottles and laundry needs adjustment to reflect a more realistic setup. Addressing these issues will enhance the simulation's accuracy and usability.
 """
 
     # Update configs
     updated_config_path = revise_task_config(task_config_path=args.task_config_path,
                                              reflection=reflection,
-                                             temperature=0.3,
+                                             temperature=0.2,
                                              model="gpt-4")
 
     # Visualize
@@ -73,7 +66,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generates a scene for a given task description.")
     parser.add_argument('--task_config_path',
                          type=str,
-                         default="output/generated/Pen_102942_2025-02-19-21-43-44/Write_Smiley_Face.yaml")
+                         default="output/generated/WashingMachine_103490_2025-02-19-13-05-57/Wash_and_Dry_Clothes.yaml")
     parser.add_argument('--env',
                         default='open_the_dishwasher_door-v0',
                         help='Environment to train on (default: open_the_dishwasher_door-v0)')
