@@ -29,7 +29,7 @@ if __name__ == "__main__":
                         default='open_the_dishwasher_door-v0',
                         help='Environment to train on (default: open_the_dishwasher_door-v0)')
     parser.add_argument('--output_dir',
-                        default='output/initial',
+                        default='output',
                         help='Output directory')
     parser.add_argument('--as_images',
                         action='store_true',

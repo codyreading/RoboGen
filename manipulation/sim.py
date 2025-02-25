@@ -619,7 +619,10 @@ class SimpleEnv(gym.Env):
 
                 obj_a_bbox_min, obj_a_bbox_max = self.get_aabb(obj_a_id)
                 obj_a_size = obj_a_bbox_max - obj_a_bbox_min
-                target_aabb_min, target_aabb_max = self.get_aabb_link(obj_b_id, obj_b_link_id)
+                if obj_b_link_id == -1:
+                    target_aabb_min, target_aabb_max = self.get_aabb(obj_b_id)
+                else:
+                    target_aabb_min, target_aabb_max = self.get_aabb_link(obj_b_id, obj_b_link_id)
                 id_line = p.addUserDebugLine(target_aabb_min, target_aabb_max, [1, 0, 0], lineWidth=10, lifeTime=0, physicsClientId=self.id)
                 id_point = p.addUserDebugPoints([(target_aabb_min + target_aabb_max) / 2], [[0, 0, 1]], 10, 0, physicsClientId=self.id)
 

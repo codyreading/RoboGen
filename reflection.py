@@ -71,7 +71,7 @@ if __name__ == "__main__":
                         default='open_the_dishwasher_door-v0',
                         help='Environment to train on (default: open_the_dishwasher_door-v0)')
     parser.add_argument('--output_dir',
-                        default='output/reflection',
+                        default='output',
                         help='Output directory')
 
     # Parse the arguments
