@@ -28,20 +28,21 @@ model_dict = {
     "spatial_relationship": model_name
 }
 
-def create_task_configs(output_dir, category, task=None):
+def create_task_configs(output_dir, category, task=None, image_path=None):
     all_task_config_paths = generate_task_manipulation(category,
                                                        temperature_dict=temperature_dict,
                                                        model_dict=model_dict,
                                                        meta_path="generated",
                                                        output_dir=output_dir,
-                                                       task=task)
+                                                       task=task,
+                                                       image_path=image_path)
     return all_task_config_paths
 
 def main(args):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    task_config_paths = create_task_configs(output_dir, category=args.category, task=args.task)
+    task_config_paths = create_task_configs(output_dir, category=args.category, task=args.task, image_path=args.image_path)
 
     for task_config_path in task_config_paths:
         output_path = output_dir / f"{Path(task_config_path).stem}.gif"
@@ -60,6 +61,10 @@ if __name__ == "__main__":
     parser.add_argument('--category',
                         type=str,
                         help="Object category",
+                        default=None)
+    parser.add_argument('--image_path',
+                        type=str,
+                        help="Path to Ego4D images",
                         default=None)
     parser.add_argument('--env',
                         default='open_the_dishwasher_door-v0',

@@ -2,7 +2,7 @@ import pickle
 from gpt_4.query import query
 import json
 
-def get_missing_objects(task, objects, temperature, model):
+def get_missing_objects_llm(task, objects, temperature, model):
     system = """You are a helpful assistant that identifies ALL objects mentioned in tasks that are not already in a current list of objects.
 When analyzing tasks, identify every physical object that appears in the text, including:
 - Objects that need to be manipulated (e.g., picked up, opened, used)
@@ -46,20 +46,24 @@ Example output:
     return missing_objects
 
 
-def revise_response(task, object_category, task_names, task_descriptions, additional_objects, links, joints, temperature, model):
+def revise_response(task, object_category, task_names, task_descriptions, additional_objects, links, joints, temperature, model, image_path=None):
     # Get any missing objects
     new_object_list = []
     for objs in additional_objects:
         objects = f"{object_category}, {objs}"
-        missing_objects = get_missing_objects(task=task, objects=objects, model=model, temperature=temperature)
-
-        # Update the original list
         new_objects = objs.split(", ")
         new_objects = set(new_objects)
-        new_objects.update(missing_objects)
+
+        missing_objects_llm = get_missing_objects_llm(task=task, objects=objects, model=model, temperature=temperature)
+        new_objects.update(missing_objects_llm)
+
+        if image_path is not None:
+            objects = f"{objects}, {missing_objects_llm}"
+            missing_objects_vlm = get_missing_objects_vlm(task=task, objects=objects, image_path=image_path)
+            new_objects.update(missing_objects_vlm)
+
         new_objects = list(new_objects)
         new_objects = ', '.join(new_objects)
-
         new_object_list.append(new_objects)
 
 

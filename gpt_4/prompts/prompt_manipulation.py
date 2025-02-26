@@ -111,7 +111,7 @@ Can you do the same for the following object:
 # TODO: add another example where the ambiguous description is changed to be a precise description of the object.
 
 def generate_task(object_category=None, object_path=None, existing_response=None, temperature_dict=None,
-                  model_dict=None, meta_path="generated_tasks", output_dir="data", task=None):
+                  model_dict=None, meta_path="generated_tasks", output_dir="data", task=None, image_path=None):
     # send the object articulation tree, semantics file and get task descriptions, invovled objects and joints
     # randomly sample an object for generation.
 
@@ -189,7 +189,8 @@ def generate_task(object_category=None, object_path=None, existing_response=None
                                                                                            links=links,
                                                                                            joints=joints,
                                                                                            temperature=temperature_dict["task_revision"],
-                                                                                           model=model_dict['task_revision'])
+                                                                                           model=model_dict['task_revision'],
+                                                                                           image_path=image_path)
     task_number = len(task_names)
     print("task number: ", task_number)
 

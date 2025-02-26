@@ -30,9 +30,21 @@ def main(args):
     real_images = load_real_image()
 
     # Reflect with VLM
-    reflection = reflect_vlm(task="Clean the forks, knives, and plates using the dishwasher",
-                             simulated_images=simulated_images,
-                             real_images=real_images)
+    # reflection = reflect_vlm(task="Clean the forks, knives, and plates using the dishwasher",
+    #                          simulated_images=simulated_images,
+    #                          real_images=real_images)
+
+    reflection = """SCALE ISSUES:
+- Robot Arm: Appears too large compared to the dishwasher | May hinder task execution due to space constraints | Adjust scale to match real-world proportions.
+- Dishwasher: Appears too small relative to the robot arm | Could affect interaction accuracy | Increase size to match real-world dimensions.
+
+PLACEMENT ISSUES:
+- Robot Arm: Positioned too close to the dishwasher | May cause collision or restricted movement | Reposition to allow adequate space for operation.
+- Object on Floor: Unclear placement purpose | Could obstruct robot path | Remove or reposition to a logical location.
+
+SUMMARY:
+The most critical issues involve the incorrect scaling of the robot arm and dishwasher, which could impede task execution.
+"""
 
     # Update configs
     updated_config_path = revise_task_config(task_config_path=args.task_config_path,

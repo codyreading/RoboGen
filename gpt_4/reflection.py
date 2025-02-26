@@ -24,11 +24,6 @@ Analyze and report:
 - Check object-surface relationships and contact points
 - Note any unnatural spatial arrangements
 
-3. Object Presence Verification
-- List objects visible in real world but absent in simulation
-- Identify unnecessary objects in simulation
-- Note missing environmental elements that could affect the task
-
 Format your response as:
 
 SCALE ISSUES:
@@ -36,9 +31,6 @@ SCALE ISSUES:
 
 PLACEMENT ISSUES:
 [Object name]: [Position issue] | [Task impact] | [Recommended fix]
-
-MISSING/EXTRA:
-[Object]: [Missing/Extra] | [Task impact] | [Recommended fix]
 
 SUMMARY:
 Brief overview of the most critical issues for task success."""
@@ -79,7 +71,7 @@ We have the following spatial relationships:
 on, obj_A, obj_B: object A is on top of object B, e.g., a fork on the table.
 in, obj_A, obj_B: object A is inside object B, e.g., a gold ring in the safe.
 
-Ensure to either add new objects only update the following attributes: size, center, spatial_relationships.
+Ensure to only update the following attributes: size, center, spatial_relationships.
 
 
 Here is the current configuration:
