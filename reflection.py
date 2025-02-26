@@ -10,12 +10,12 @@ def generate_images(env):
     return images
 
 def load_simulated_image():
-    path = "/home/c84399429/RoboGen/output/initial/Clean_Trash/33.jpeg"
+    path = "/home/c84399429/RoboGen/output/initial/Wash_and_Dry_Clothes/33.jpeg"
     image = io_utils.load_image(path)
     return [image]
 
 def load_real_image():
-    path = "/home/c84399429/RoboGen/data/ego4d/Dishwasher.png"
+    path = "/home/c84399429/RoboGen/data/ego4d/WashingMachine.jpeg"
     image = io_utils.load_image(path)
     return [image]
 
@@ -26,24 +26,24 @@ def main(args):
     # Get images
     # env = manipulation.get_env(args.task_config_path)
     # simulated_images = generate_images(env=env)
-    simulated_images = load_simulated_image()
-    real_images = load_real_image()
+    # simulated_images = load_simulated_image()
+    # real_images = load_real_image()
 
-    # Reflect with VLM
+    # # Reflect with VLM
     # reflection = reflect_vlm(task="Clean the forks, knives, and plates using the dishwasher",
     #                          simulated_images=simulated_images,
     #                          real_images=real_images)
 
     reflection = """SCALE ISSUES:
-- Robot Arm: Appears too large compared to the dishwasher | May hinder task execution due to space constraints | Adjust scale to match real-world proportions.
-- Dishwasher: Appears too small relative to the robot arm | Could affect interaction accuracy | Increase size to match real-world dimensions.
+1. Washing Machine: Slightly smaller in simulation | May affect spatial planning | Increase size to match real-world dimensions.
+2. Detergent Bottles: Larger in simulation | Could impact user interaction | Reduce size for realistic handling.
 
 PLACEMENT ISSUES:
-- Robot Arm: Positioned too close to the dishwasher | May cause collision or restricted movement | Reposition to allow adequate space for operation.
-- Object on Floor: Unclear placement purpose | Could obstruct robot path | Remove or reposition to a logical location.
+1. Detergent Bottles: Positioned on the floor in simulation | Unnatural and impractical | Place on top of the washing machine.
+2. Laundry Pile: Floating slightly above the floor in simulation | Unrealistic appearance | Adjust to ensure contact with the floor.
 
 SUMMARY:
-The most critical issues involve the incorrect scaling of the robot arm and dishwasher, which could impede task execution.
+The primary issues involve the scaling of objects like the washing machine and detergent bottles, which could affect user interaction and spatial planning. Additionally, the placement of detergent bottles and laundry needs adjustment to reflect a more realistic setup. Addressing these issues will enhance the simulation's accuracy and usability.
 """
 
     # Update configs
