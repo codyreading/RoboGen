@@ -32,7 +32,7 @@ def normalize_obj(obj_file_path):
         for line in lines:
             if line.startswith("v "):
                 vertices.append([float(x) for x in line.split()[1:]])
-    
+
     vertices = np.array(vertices).reshape(-1, 3)
     vertices = vertices - np.mean(vertices, axis=0) # center to zero
     vertices = vertices / np.max(np.linalg.norm(vertices, axis=1)) # normalize to -1, 1
@@ -56,7 +56,7 @@ def down_load_single_object(name, uids=None, candidate_num=5, vhacd=True, debug=
                 return False
 
     processes = multiprocessing.cpu_count()
-   
+
     for uid in uids:
         save_path = osp.join("objaverse_utils/data/obj", "{}".format(uid))
         print("save_path is: ", save_path)
@@ -69,7 +69,7 @@ def down_load_single_object(name, uids=None, candidate_num=5, vhacd=True, debug=
             uids=[uid],
             download_processes=processes
         )
-        
+
         test_obj = (objects[uid])
         scene = trimesh.load(test_obj)
 
@@ -94,7 +94,7 @@ def down_load_single_object(name, uids=None, candidate_num=5, vhacd=True, debug=
                 run_vhacd(save_path)
 
         # for pybullet, we have to additionally parse it to urdf
-        obj_to_urdf(save_path, scale=1, vhacd=vhacd) 
+        obj_to_urdf(save_path, scale=1, vhacd=vhacd)
 
     return True
 
@@ -116,7 +116,7 @@ def download_and_parse_objavarse_obj_from_yaml_config(config_path, candidate_num
     for obj in config:
         if 'type' in obj.keys() and obj['type'] == 'mesh' and 'uid' not in obj.keys():
             print("{} trying to download object: {} {}".format("=" * 20, obj['lang'], "=" * 20))
-            success = down_load_single_object(obj["lang"], candidate_num=candidate_num, vhacd=vhacd, 
+            success = down_load_single_object(obj["lang"], candidate_num=candidate_num, vhacd=vhacd,
                                               task_name=task_name, task_description=task_description)
             if not success:
                 print("failed to find suitable object to download {} quit building this task".format(obj["lang"]))
@@ -137,11 +137,11 @@ def load_gif(gif_path):
     frames_arrays = [np.array(frame) for frame in frames]
     return frames_arrays
 
-def build_up_env(task_config, solution_path, task_name, restore_state_file, return_env_class=False, 
-                    action_space='delta-translation', render=False, randomize=False, 
-                    obj_id=0,
+def build_up_env(task_config, solution_path, task_name, restore_state_file, return_env_class=False,
+                    action_space='delta-translation', render=False, randomize=False,
+                    obj_id=0, stabilize=True
                 ):
-    
+
     save_config = copy.deepcopy(default_config)
     save_config['config_path'] = task_config
     save_config['task_name'] = task_name
@@ -150,6 +150,7 @@ def build_up_env(task_config, solution_path, task_name, restore_state_file, retu
     save_config['gui'] = render
     save_config['randomize'] = randomize
     save_config['obj_id'] = obj_id
+    save_config['stabilize'] = stabilize
 
     ### you might want to restore to a specific state
     module = importlib.import_module("{}.{}".format(solution_path.replace("/", "."), task_name))
@@ -241,7 +242,7 @@ def obj_to_urdf(obj_file_path, scale=1, vhacd=True, normalized=True, obj_name='m
         material = """
          <material name="texture">
         <texture filename="{}"/>
-      </material>""".format(osp.join(obj_file_path, png_file))        
+      </material>""".format(osp.join(obj_file_path, png_file))
     else:
         material = """
         <material name="yellow">
@@ -274,7 +275,7 @@ def obj_to_urdf(obj_file_path, scale=1, vhacd=True, normalized=True, obj_name='m
   </link>
   </robot>
   """.format(osp.join(obj_file_path, collision_file), scale, scale, scale)
-    
+
 
 
     urdf =  "".join([header, visual, collision])
@@ -293,7 +294,7 @@ def run_vhacd(input_obj_file_path, normalized=True, obj_name="material"):
         name_log = os.path.join(input_obj_file_path, "log.txt")
     p.vhacd(name_in, name_out, name_log)
 
-def parse_center(center):   
+def parse_center(center):
     if center.startswith("(") or center.startswith("["):
         center = center[1:-1]
 
@@ -331,13 +332,13 @@ def run_vhacd_with_timeout(args):
         p.disconnect(id)
         return True
 
-   
+
 
 def preprocess_urdf(urdf_file_path, num_processes=6):
     new_lines = []
     with open(urdf_file_path, 'r') as f:
         lines = f.readlines()
-        
+
     num_lines = len(lines)
     l_idx = 0
     to_process_args = []
@@ -366,22 +367,22 @@ def preprocess_urdf(urdf_file_path, num_processes=6):
                     else:
                         new_name = line_2.replace(obj_file_name, obj_file_name[:-4] + '_vhacd.obj')
                         new_lines.append(new_name)
-                
+
                 elif "</collision>" in line_2:
                     new_lines.append(line_2)
-                    l_idx = l_idx_2 
+                    l_idx = l_idx_2
                     break
 
                 else:
                     new_lines.append(line_2)
-            
+
         else:
             new_lines.append(line_1)
 
         l_idx += 1
 
     # do vhacd in parallel, each has a timeout of 200 seconds
-    with NonDaemonPool(processes=num_processes) as pool: 
+    with NonDaemonPool(processes=num_processes) as pool:
         results = pool.map(run_vhacd_with_timeout, to_process_args)
 
     processed_idx = 0
@@ -396,7 +397,7 @@ def preprocess_urdf(urdf_file_path, num_processes=6):
                 new_lines[l_idx] = new_name
             processed_idx += 1
 
-    new_path = urdf_file_path.replace(".urdf", "_vhacd.urdf")    
+    new_path = urdf_file_path.replace(".urdf", "_vhacd.urdf")
     with open(new_path, 'w') as f:
         f.writelines("".join(new_lines))
 
@@ -441,7 +442,7 @@ def parse_config(config, use_bard=True, obj_id=None, use_gpt_size=True, use_vhac
 
         if "type" not in obj.keys():
             continue
-        
+
         if obj['type'] == 'mesh':
             if 'uid' not in obj.keys():
                 continue
@@ -449,11 +450,11 @@ def parse_config(config, use_bard=True, obj_id=None, use_gpt_size=True, use_vhac
                 uid = obj['uid'][np.random.randint(len(obj['uid']))]
             else:
                 uid = obj['uid'][obj_id]
-                
+
             urdf_file_path = osp.join("objaverse_utils/data/obj", "{}".format(uid), "material.urdf")
             if not os.path.exists(urdf_file_path):
                 down_load_single_object(name=obj['lang'], uids=[uid])
-            
+
             new_urdf_file_path = urdf_file_path.replace("material.urdf", "material_non_vhacd.urdf")
             new_urdf_lines = []
             with open(urdf_file_path, 'r') as f:
@@ -472,7 +473,7 @@ def parse_config(config, use_bard=True, obj_id=None, use_gpt_size=True, use_vhac
             urdf_paths.append(urdf_file_path)
             urdf_types.append('mesh')
             urdf_movables.append(True) # all mesh objects are movable
-           
+
         elif obj['type'] == 'urdf':
             try:
                 category = obj['lang']
@@ -482,7 +483,7 @@ def parse_config(config, use_bard=True, obj_id=None, use_gpt_size=True, use_vhac
                 if category == 'Computer display':
                     category = 'Display'
                 possible_obj_path = partnet_mobility_dict[category]
-            
+
             if 'reward_asset_path' not in obj.keys():
                 obj_path = np.random.choice(possible_obj_path)
                 if category == 'Toaster':
@@ -514,8 +515,8 @@ def parse_config(config, use_bard=True, obj_id=None, use_gpt_size=True, use_vhac
 
     return urdf_paths, urdf_sizes, urdf_locations, urdf_names, urdf_types, urdf_on_tables, use_table, \
         articulated_joint_angles, spatial_relationships, distractor_config_path, urdf_movables
-            
-        
+
+
 
 def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, camera_width=640, camera_height=480,
                         return_camera_matrices=False, z_near=0.01, z_far=10, save_path=None):
@@ -533,7 +534,7 @@ def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, 
         delta_x = xy_distance * np.cos(np.deg2rad(azimuth))
         delta_y = xy_distance * np.sin(np.deg2rad(azimuth))
         camera_position = [camera_target[0] + delta_x, camera_target[1] + delta_y, camera_target[2] + delta_z]
-        env.setup_camera(camera_position, camera_target, 
+        env.setup_camera(camera_position, camera_target,
                             camera_width=camera_width, camera_height=camera_height)
 
         rgb, depth = env.render()
@@ -541,16 +542,16 @@ def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, 
         depths.append(depth)
         view_camera_matrices.append(env.view_matrix)
         project_camera_matrices.append(env.projection_matrix)
-    
+
     env.view_matrix, env.projection_matrix = env_prev_view_matrix, env_prev_projection_matrix
 
     if not return_camera_matrices:
         return rgbs, depths
     else:
         return rgbs, depths, view_camera_matrices, project_camera_matrices
-    
-def take_round_images_around_object(env, object_name, distance=None, save_path=None, azimuth_interval=30, 
-                                    elevation=30, return_camera_matrices=False, camera_width=640, camera_height=480, 
+
+def take_round_images_around_object(env, object_name, distance=None, save_path=None, azimuth_interval=30,
+                                    elevation=30, return_camera_matrices=False, camera_width=640, camera_height=480,
                                     only_object=False):
     if only_object:
         ### make all other objects invisiable
@@ -564,15 +565,15 @@ def take_round_images_around_object(env, object_name, distance=None, save_path=N
                     prev_rgbas.append(prev_rgba)
                     p.changeVisualShape(obj_id, link_idx, rgbaColor=[0, 0, 0, 0], physicsClientId=env.id)
 
-                                    
+
     obj_id = env.urdf_ids[object_name]
     min_aabb, max_aabb = env.get_aabb(obj_id)
     camera_target = (max_aabb + min_aabb) / 2
     if distance is None:
         distance = np.linalg.norm(max_aabb - min_aabb) * 1.1
 
-    res = take_round_images(env, camera_target, distance, elevation=elevation, 
-                             azimuth_interval=azimuth_interval, camera_width=camera_width, camera_height=camera_height, 
+    res = take_round_images(env, camera_target, distance, elevation=elevation,
+                             azimuth_interval=azimuth_interval, camera_width=camera_width, camera_height=camera_height,
                              save_path=save_path, return_camera_matrices=return_camera_matrices)
 
     if only_object:
@@ -584,7 +585,7 @@ def take_round_images_around_object(env, object_name, distance=None, save_path=N
                 for link_idx in range(-1, num_links):
                     p.changeVisualShape(obj_id, link_idx, rgbaColor=prev_rgbas[cnt], physicsClientId=env.id)
                     cnt += 1
-                    
+
     return res
 
 def center_camera_at_object(env, object_name, distance=None, elevation=30, azimuth=0, camera_width=640, camera_height=480):
@@ -600,7 +601,7 @@ def center_camera_at_object(env, object_name, distance=None, elevation=30, azimu
     delta_x = xy_distance * np.cos(np.deg2rad(azimuth))
     delta_y = xy_distance * np.sin(np.deg2rad(azimuth))
     camera_position = [camera_target[0] + delta_x, camera_target[1] + delta_y, camera_target[2] + delta_z]
-    env.setup_camera(camera_position, camera_target, 
+    env.setup_camera(camera_position, camera_target,
                         camera_width=camera_width, camera_height=camera_height)
 
 def get_pc(proj_matrix, view_matrix, depth, width, height, mask_infinite=False):
@@ -626,8 +627,8 @@ def get_pc(proj_matrix, view_matrix, depth, width, height, mask_infinite=False):
     points = points[:, :3]
 
     return points
-    
-def setup_camera_ben(client_id, camera_eye=[0.5, -0.75, 1.5], camera_target=[-0.2, 0, 0.75], camera_width=1920//4, camera_height=1080//4, 
+
+def setup_camera_ben(client_id, camera_eye=[0.5, -0.75, 1.5], camera_target=[-0.2, 0, 0.75], camera_width=1920//4, camera_height=1080//4,
                  z_near=0.01, z_far=100):
     view_matrix = p.computeViewMatrix(camera_eye, camera_target, [0, 0, 1], physicsClientId=client_id)
     focal_length = 450 # CAMERA_INTRINSICS[0, 0]
@@ -712,7 +713,7 @@ def save_env(env, save_path=None):
         'object_joint_name_dicts': object_joint_name_dicts,
         'object_link_name_dicts': object_link_name_dicts,
         'object_base_position': object_base_position,
-        'object_base_orientation': object_base_orientation,     
+        'object_base_orientation': object_base_orientation,
         'activated': activated,
         'suction_object_id': suction_object_id,
         'suction_contact_link': suction_contact_link,
@@ -736,7 +737,7 @@ def load_env(env, load_path=None, state=None):
     if load_path is not None:
         with open(load_path, 'rb') as f:
             state = pickle.load(f)
-        
+
     ### set env to stored object position and orientation
     for obj_name, obj_id in env.urdf_ids.items():
         p.resetBasePositionAndOrientation(obj_id, state['object_base_position'][obj_name], state['object_base_orientation'][obj_name], physicsClientId=env.id)
@@ -772,7 +773,7 @@ def load_env(env, load_path=None, state=None):
 
 
 if __name__ == '__main__':
-    
+
     path = "/media/yufei/42b0d2d4-94e0-45f4-9930-4d8222ae63e5/yufei/projects/ibm/objaverse_utils/data/obj/6d9c1aa964be4f7881d89cd6b427296c____Small_house_with_wrecked_car"
     path = "/media/yufei/42b0d2d4-94e0-45f4-9930-4d8222ae63e5/yufei/projects/ibm/objaverse_utils/data/obj/94ccd348a1424defaea6efcd1d3418a6____Plastic_monster_toy."
     path = "objaverse_utils/data/obj/0/006_mustard_bottle/tsdf/"

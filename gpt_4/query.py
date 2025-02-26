@@ -79,7 +79,7 @@ def query(system, user_contents, assistant_contents, model='gpt-4', save_path=No
 
     return result
 
-def query_vlm(system, images, prompt, model='gpt-4o-mini', temperature=0.3):
+def query_vlm(system, images, prompt, model='gpt-4o', temperature=0.3):
     images_64 = encode_images_to_base64(images)
     text_dict = {"type": "text", "text": prompt}
     content = [text_dict]

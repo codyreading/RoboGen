@@ -7167,5 +7167,84 @@
         "afa3a4cf6247476a9bf66ce2bedf3e57",
         "932f6d69160d488dbbaf2d4facaba112",
         "3807329f59d34e7fa8d7711295adf940"
+    ],
+    "a common fork": [
+        "6b46796ba2c245fd8c9801e1c996a2e8",
+        "7540e0bc543743f688628b8557c43932",
+        "3d8b4b5db18e4ce58d205982d1ca511c",
+        "695b9b8ae3354368952ad97c66ce3cef"
+    ],
+    "a common fork_all": [
+        "6b46796ba2c245fd8c9801e1c996a2e8",
+        "7540e0bc543743f688628b8557c43932",
+        "3d8b4b5db18e4ce58d205982d1ca511c",
+        "695b9b8ae3354368952ad97c66ce3cef",
+        "e74d1856155f496aa33f51fcfb090da6",
+        "337164386e0448219a79d1fd7a5a7ab5"
+    ],
+    "a common knife": [
+        "b89573d7d1444589bdab50b261af51d7",
+        "1af7ddeef6e94a0f801cbfce5c615a51",
+        "b56f12426f9d42b6bbbd35726ddd69a3",
+        "fbf0c224d1334036ba1acc88910895ac",
+        "5624b5f0360b402b9490b33060d3e27c"
+    ],
+    "a common knife_all": [
+        "2f9171d5557a460a94379c9d6649fa58",
+        "b89573d7d1444589bdab50b261af51d7",
+        "1af7ddeef6e94a0f801cbfce5c615a51",
+        "b56f12426f9d42b6bbbd35726ddd69a3",
+        "fbf0c224d1334036ba1acc88910895ac",
+        "5624b5f0360b402b9490b33060d3e27c"
+    ],
+    "a common laundry machine": [
+        "777b94125b104b04a18ea342bfa8e440"
+    ],
+    "a common laundry machine_all": [
+        "3492c225c9074fbb955ae4f87eb74ec0",
+        "bd21fd8ec5bd4031b2b8aa26689dee02",
+        "c198c7d48d1546c39d98bf40738bdede",
+        "4d9773f49ac94864bb0b1e935856d392",
+        "b6b419d784bc4c33a30208f22cff4de1",
+        "777b94125b104b04a18ea342bfa8e440"
+    ],
+    "an orange garbage bag": [
+        "06b6e2b916584faab430bd03c0c19499",
+        "bf200222d79d4411aade19ddf312f122",
+        "e0e9fb929170400c87c03c49a50ce315",
+        "132e9b1a826644738eb44e789d5b2dcf",
+        "aa368870587c49fdb1812728aa3c1adc",
+        "dabdd8295b4f4f39ae4b01e158caffbc"
+    ],
+    "an orange garbage bag_all": [
+        "06b6e2b916584faab430bd03c0c19499",
+        "bf200222d79d4411aade19ddf312f122",
+        "e0e9fb929170400c87c03c49a50ce315",
+        "132e9b1a826644738eb44e789d5b2dcf",
+        "aa368870587c49fdb1812728aa3c1adc",
+        "dabdd8295b4f4f39ae4b01e158caffbc"
+    ],
+    "a blue garbage bag": [
+        "c9a4dc6c818c4162a4d7391f9d5d6de5"
+    ],
+    "a blue garbage bag_all": [
+        "06b6e2b916584faab430bd03c0c19499",
+        "8b43e9ea370d448c91f4fa2f6996d0f9",
+        "652a70602c334c16a19e9e3a09c644e9",
+        "c9a4dc6c818c4162a4d7391f9d5d6de5",
+        "ce7f0fac7a4f43cb9b6700f1ed7742a8",
+        "f3cd025d97a44cc582117756eda37ebf"
+    ],
+    "a common washing machine": [
+        "b6b419d784bc4c33a30208f22cff4de1",
+        "b09b1c31bd0944599d86a46572191f28"
+    ],
+    "a common washing machine_all": [
+        "18b32bf3a93e48638945b435e0eabf05",
+        "b6b419d784bc4c33a30208f22cff4de1",
+        "fb6ff3ecdb574864859ac87b70d83d83",
+        "0063053f17184809b299f99730288354",
+        "da4d51b9c8974e6e88075bcfd8ca4200",
+        "b09b1c31bd0944599d86a46572191f28"
     ]
 }

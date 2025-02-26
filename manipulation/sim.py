@@ -31,6 +31,7 @@ class SimpleEnv(gym.Env):
                     vhacd=False, # if to perform vhacd on the object for better collision detection for pybullet
                     randomize=0, # if to randomize the scene
                     obj_id=0, # which object to choose to use from the candidates
+                    stabilize=True
                 ):
 
         super().__init__()
@@ -77,7 +78,7 @@ class SimpleEnv(gym.Env):
         p.setTimeStep(1.0 / hz, physicsClientId=self.id)
 
         self.seed()
-        self.set_scene()
+        self.set_scene(stabilize)
         self.setup_camera_rpy()
         self.scene_lower, self.scene_upper = self.get_scene_bounds()
         self.scene_center = (self.scene_lower + self.scene_upper) / 2
@@ -185,7 +186,7 @@ class SimpleEnv(gym.Env):
         return init_joint_angles
 
     def set_scene(
-        self,
+        self, stabilize
     ):
         ### simulation preparation
         p.resetSimulation(physicsClientId=self.id)
@@ -250,9 +251,10 @@ class SimpleEnv(gym.Env):
         ### record initial joint angles and positions
         self.record_initial_joint_and_pose()
 
+        if stabilize:
         ### stabilize the scene
-        for _ in range(500):
-            p.stepSimulation(physicsClientId=self.id)
+            for _ in range(500):
+                p.stepSimulation(physicsClientId=self.id)
 
         ### restore to a state if provided
         if self.restore_state_file is not None:
@@ -272,7 +274,8 @@ class SimpleEnv(gym.Env):
             "ur5": UR5,
         }
         robot_names = list(robot_classes.keys())
-        self.robot_name = robot_names[np.random.randint(len(robot_names))]
+        #self.robot_name = robot_names[np.random.randint(len(robot_names))]
+        self.robot_name = "panda"
         if restore_state is not None and "robot_name" in restore_state:
             self.robot_name = restore_state['robot_name']
         self.robot_class = robot_classes[self.robot_name]
@@ -362,11 +365,17 @@ class SimpleEnv(gym.Env):
         return urdf_paths, urdf_sizes, urdf_positions, urdf_names, urdf_types, urdf_on_table, urdf_movables, \
             use_table, articulated_init_joint_angles, spatial_relationships
 
-    def load_table(self, use_table, restore_state):
+    def load_table(self, use_table, restore_state, random=False):
         self.use_table = use_table
         if use_table:
             from manipulation.table_utils import table_paths, table_scales, table_poses, table_bbox_scale_down_factors
-            self.table_path = table_paths[np.random.randint(len(table_paths))]
+
+            if random:
+                table_id = np.random.randint(len(table_paths))
+            else:
+                table_id = 0
+
+            self.table_path = table_paths[table_id]
             if restore_state is not None:
                 self.table_path = restore_state['table_path']
 

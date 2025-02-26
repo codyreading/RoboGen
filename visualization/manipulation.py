@@ -46,6 +46,7 @@ def get_env(task_config_path,
         render=gui,
         randomize=randomize,
         obj_id=obj_id,
+        stabilize=False
     )
     env.reset()
     return env
