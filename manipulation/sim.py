@@ -13,6 +13,7 @@ from manipulation.ur5 import UR5
 from manipulation.sawyer import Sawyer
 from manipulation.utils import parse_config, load_env, download_and_parse_objavarse_obj_from_yaml_config
 from manipulation.gpt_reward_api import get_joint_id_from_name, get_link_id_from_name
+from utils import editing_utils
 
 class SimpleEnv(gym.Env):
     def __init__(self,
@@ -706,6 +707,49 @@ class SimpleEnv(gym.Env):
                             break
                 except:
                     continue
+
+            # Move object A towards object B by interpolating along a straight line
+            if words[0] == "towards" or words[0] == "away":
+                obj_a = words[1]
+                obj_b = words[2]
+                distance_factor = float(words[3])
+
+                # Get positions of objects
+                obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
+                pos_a, orient_a = p.getBasePositionAndOrientation(obj_a_id, physicsClientId=self.id)
+                pos_b, orient_b = p.getBasePositionAndOrientation(obj_b_id, physicsClientId=self.id)
+
+                # Compute new position
+                if words[0] == "towards":
+                    new_pos_a = editing_utils.interpolate(pos_a, pos_b, factor=distance_factor)
+                else:
+                    new_pos_a = editing_utils.extrapolate(pos_a, pos_b, factor=distance_factor)
+
+                # TODO: Resolve collision check and ensure it is still on the table
+
+                # Set new position
+                p.resetBasePositionAndOrientation(obj_a_id, new_pos_a, orient_a, physicsClientId=self.id)
+
+             # Move object A between object B and C by placing it between the two
+            if words[0] == "between":
+                obj_a = words[1]
+                obj_b = words[2]
+                obj_c = words[3]
+
+                # Get positions of objects
+                obj_a_id, obj_b_id, obj_c_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b], self.urdf_ids[obj_c]
+                pos_a, orient_a = p.getBasePositionAndOrientation(obj_a_id, physicsClientId=self.id)
+                pos_b, orient_b = p.getBasePositionAndOrientation(obj_b_id, physicsClientId=self.id)
+                pos_c, orient_c = p.getBasePositionAndOrientation(obj_c_id, physicsClientId=self.id)
+
+                # Compute new position
+                new_pos_a = editing_utils.between(pos_a, pos_b, pos_c)
+
+                # TODO: Resolve collision check and ensure it is still on the table
+
+                # Set new position
+                p.resetBasePositionAndOrientation(obj_a_id, new_pos_a, orient_a, physicsClientId=self.id)
+
 
 
     def handle_gpt_joint_angle(self, articulated_init_joint_angles):
