@@ -1,3 +1,5 @@
+import numpy as np
+
 def interpolate(pos_a, pos_b, factor):
     """
     Interpolate between two 3D positions (x, y, z) based on a factor, but only for X and Y coordinates.
@@ -63,3 +65,30 @@ def between(pos_a, pos_b, pos_c):
     new_pos_a = interpolate(pos_b, pos_c, factor=0.5)
     new_pos_a = (new_pos_a[0], new_pos_a[1], pos_a[2])
     return new_pos_a
+
+def near(pos_a, pos_b, distance):
+    """
+    Generate a random position near pos_b within the specified distance,
+    with operations only on the XY plane using NumPy.
+
+    Args:
+        pos_a: Tuple of (x, y, z) representing the position to take Z from
+        pos_b: Tuple of (x, y, z) representing the position to stay near
+        distance: Float representing the maximum distance from pos_b on the XY plane
+
+    Returns:
+        Tuple of (x, y, z) representing the new random position
+    """
+    # Extract coordinates
+    x_b, y_b, _ = pos_b
+    _, _, z_a = pos_a
+
+    # Generate a random angle in radians (0 to 2π)
+    random_angle = np.random.random() * 2 * np.pi
+
+    # Calculate the new X and Y coordinates using polar coordinates
+    x_new = x_b + distance * np.cos(random_angle)
+    y_new = y_b + distance * np.sin(random_angle)
+
+    # Return the new position with Z from pos_a
+    return (float(x_new), float(y_new), z_a)

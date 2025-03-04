@@ -46,6 +46,9 @@ Example output:
     return missing_objects
 
 
+def get_missing_objects_vlm(task, objects, image_path):
+
+
 def revise_response(task, object_category, task_names, task_descriptions, additional_objects, links, joints, temperature, model, image_path=None):
     # Get any missing objects
     new_object_list = []
@@ -59,7 +62,8 @@ def revise_response(task, object_category, task_names, task_descriptions, additi
 
         if image_path is not None:
             objects = f"{objects}, {missing_objects_llm}"
-            missing_objects_vlm = get_missing_objects_vlm(task=task, objects=objects, image_path=image_path)
+
+            missing_objects_vlm = get_missing_objects_vlm(task=task, objects=objects, image_path=image_path / f"{object_category}.png")
             new_objects.update(missing_objects_vlm)
 
         new_objects = list(new_objects)

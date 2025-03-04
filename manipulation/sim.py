@@ -233,15 +233,15 @@ class SimpleEnv(gym.Env):
         ### load each object from the task config
         self.load_object(urdf_paths, urdf_sizes, urdf_positions, urdf_names, urdf_types, urdf_on_table, urdf_movables)
 
+        ### handle any special relationships outputted by GPT
+        self.handle_gpt_special_relationships(spatial_relationships)
+
         ### adjusting object positions
         ### place the lowest point on the object to be the height where GPT specifies
         object_height = self.adjust_object_positions(robot_base_pos)
 
         ### resolve collisions between objects
         self.resolve_collision(robot_base_pos, object_height, spatial_relationships)
-
-        ### handle any special relationships outputted by GPT
-        self.handle_gpt_special_relationships(spatial_relationships)
 
         ### set all object's joint angles to the lower joint limit
         self.set_to_default_joint_angles()
@@ -725,12 +725,10 @@ class SimpleEnv(gym.Env):
                 else:
                     new_pos_a = editing_utils.extrapolate(pos_a, pos_b, factor=distance_factor)
 
-                # TODO: Resolve collision check and ensure it is still on the table
-
                 # Set new position
                 p.resetBasePositionAndOrientation(obj_a_id, new_pos_a, orient_a, physicsClientId=self.id)
 
-             # Move object A between object B and C by placing it between the two
+            # Move object A between object B and C by placing it between the two
             if words[0] == "between":
                 obj_a = words[1]
                 obj_b = words[2]
@@ -745,11 +743,49 @@ class SimpleEnv(gym.Env):
                 # Compute new position
                 new_pos_a = editing_utils.between(pos_a, pos_b, pos_c)
 
-                # TODO: Resolve collision check and ensure it is still on the table
-
                 # Set new position
                 p.resetBasePositionAndOrientation(obj_a_id, new_pos_a, orient_a, physicsClientId=self.id)
 
+
+            # Move object A between object B and C by placing it between the two
+            if words[0] == "rescale":
+                obj_a = words[1]
+                rescale_factor = float(words[2])
+
+                # Get object parameters
+                obj_a_id = self.urdf_ids[obj_a]
+                size_a = self.simulator_sizes[obj_a]
+                pos_a, orient_a = p.getBasePositionAndOrientation(obj_a_id, physicsClientId=self.id)
+
+                # Rescale
+                new_size_a = size_a * rescale_factor
+
+                # Update environment
+                p.removeBody(obj_a_id, physicsClientId=self.id)
+                obj_a_id = p.loadURDF(self.urdf_paths[obj_a],
+                                      basePosition=pos_a,
+                                      baseOrientation=orient_a,
+                                      physicsClientId=self.id,
+                                      useFixedBase=False,
+                                      globalScaling=new_size_a)
+                self.urdf_ids[obj_a] = obj_a_id
+                self.simulator_sizes[obj_a] = new_size_a
+
+            # Move object A towards object B by interpolating along a straight line
+            if words[0] == "near":
+                obj_a = words[1]
+                obj_b = words[2]
+                distance = float(words[3])
+
+                # Get positions of objects
+                obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
+                pos_a, orient_a = p.getBasePositionAndOrientation(obj_a_id, physicsClientId=self.id)
+                pos_b, orient_b = p.getBasePositionAndOrientation(obj_b_id, physicsClientId=self.id)
+
+                new_pos_a = editing_utils.near(pos_a, pos_b, distance)
+
+                # Set new position
+                p.resetBasePositionAndOrientation(obj_a_id, new_pos_a, orient_a, physicsClientId=self.id)
 
 
     def handle_gpt_joint_angle(self, articulated_init_joint_angles):

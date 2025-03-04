@@ -65,7 +65,7 @@ if __name__ == "__main__":
     parser.add_argument('--image_path',
                         type=str,
                         help="Path to Ego4D images",
-                        default=None)
+                        default="data/ego4d")
     parser.add_argument('--env',
                         default='open_the_dishwasher_door-v0',
                         help='Environment to train on (default: open_the_dishwasher_door-v0)')

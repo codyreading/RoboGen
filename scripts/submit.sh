@@ -18,7 +18,7 @@ LOG_DIR="logs"
 mkdir -p "$LOG_DIR"  # Ensure log directory exists
 
 # Define the CSV file path
-CSV_FILE="experiments.csv"
+CSV_FILE="ego4d_experiments.csv"
 index=0
 
 # Set IFS to handle CSV properly (handle quoted values correctly)
