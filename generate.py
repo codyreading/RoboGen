@@ -41,19 +41,20 @@ def create_task_configs(output_dir, category, task=None, image_dir=None):
     all_task_config_paths = generate_task_manipulation(category,
                                                        temperature_dict=temperature_dict,
                                                        model_dict=model_dict,
-                                                       meta_path="configs",
+                                                       meta_path="config",
                                                        output_dir=output_dir,
                                                        task=task,
                                                        image_dir=image_dir)
     return all_task_config_paths
 
 
-def edit_task_configs(output_dir, task_config_paths, task, image_dir, model_dict, temperature_dict):
+def edit_task_configs(output_dir, task_config_paths, category, task, image_dir, model_dict, temperature_dict):
     edited_task_config_paths = []
 
     for task_config_path in task_config_paths:
         edited_task_config_path = edit_task_config(output_dir=output_dir,
                                                    task_config_path=task_config_path,
+                                                   category=category,
                                                    task=task,
                                                    image_dir=image_dir,
                                                    model_dict=model_dict,
@@ -74,6 +75,7 @@ def main(args):
 
     edited_task_config_paths = edit_task_configs(output_dir=output_dir,
                                                  task_config_paths=task_config_paths,
+                                                 category=args.category,
                                                  task=args.task,
                                                  image_dir=image_dir,
                                                  model_dict=model_dict,

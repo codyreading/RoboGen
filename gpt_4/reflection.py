@@ -2,6 +2,15 @@ import yaml
 from gpt_4.query import query_vlm, query
 from gpt_4.parsing import reflection_parsing
 from pathlib import Path
+from utils import io_utils
+
+def get_simulated_image():
+    raise NotImplementedError
+
+def get_real_image(category, image_dir):
+    image_path = image_dir / f"{category}.png"
+    image = io_utils.load_image(image_path)
+    return image
 
 def reflect_vlm(simulated_images, real_images, task):
     system_prompt = """You are a computer vision expert specializing in analyzing differences between simulation and real-world environments. Your strength lies in precise object analysis and clear, structured feedback."""
@@ -62,14 +71,17 @@ def revise_task_config_from_reflection(task_config_path, reflection, temperature
     return revised_task_config_path
 
 
-def edit_task_config(output_dir, task_config_path, task, image_dir, model_dict, temperature_dict):
+def edit_task_config(output_dir, task_config_path, category, task, image_dir, model_dict, temperature_dict):
     breakpoint()
+    # Get images
+    simulated_image = get_sim_image()
+    real_image = get_real_image(category=category, image_dir=image_dir)
 
     # Reflect with VLM
     reflection = reflect_vlm(task=task,
-                             simulated_images=simulated_images,
-                             real_images=real_images,
-                             temperature=temperature_dict[""])
+                             simulated_images=[simulated_image],
+                             real_images=[real_image],
+                             temperature=temperature_dict["reflection",])
 
     # Update configs
     updated_config_path = revise_task_config(task_config_path=task_config_path,
