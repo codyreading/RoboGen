@@ -74,12 +74,8 @@ def update_config_with_str(task_config, updated_config):
     try:
         updated_config = yaml.safe_load(updated_config)
 
-        for config in updated_task_config:
-            if "spatial_relationships" in config:
-
-
     except:
         print("Invalid reflection updated, not changing anything")
-        updated_task_config = task_config
+        updated_config = task_config
 
-    return updated_task_config
+    return updated_config

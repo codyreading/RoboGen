@@ -93,7 +93,6 @@ def query_vlm(system, images, prompt, model='gpt-4o', temperature=0.3):
         "content": content
     }]
 
-
     response = openai.ChatCompletion.create(
         model=model,
         messages=messages,

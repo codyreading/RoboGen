@@ -1,0 +1,24 @@
+{
+    "exclude": [
+        "**/manipulation/gpt_tasks/",
+        "**/manipulation/gpt_tasks_old/",
+        "**/manipulation/gpt_rigid_tasks/",
+        "**/RL_sac/",
+        "**/primitive_states/",
+        "**/env_construction/",
+        "**/data/",
+        "**/Archive/",
+        "**/.vscode/",
+        "**/objaverse_utils/",
+        "**/__pycache__/",
+        "**/*.whl",
+        "**/all_last_state_files_*.txt",
+        "**/*.gif",
+        "**/output*",
+        "**/logs*",
+        "**/error*"
+    ],
+    "ignore": [
+        "**/__pycache__/"
+    ]
+}

@@ -39,7 +39,7 @@ Brief overview of the most critical issues for task success."""
     response = query_vlm(system=system_prompt, images=images, prompt=task_prompt)
     return response
 
-def revise_task_config(task_config_path, reflection, temperature, model):
+def revise_task_config_from_reflection(task_config_path, reflection, temperature, model):
     with open(task_config_path, 'r') as file:
         task_config = yaml.safe_load(file)
 
@@ -60,3 +60,19 @@ def revise_task_config(task_config_path, reflection, temperature, model):
         yaml.dump(revised_config, f, indent=4)
 
     return revised_task_config_path
+
+
+def edit_task_config(output_dir, task_config_path, task, image_dir, model_dict, temperature_dict):
+    breakpoint()
+
+    # Reflect with VLM
+    reflection = reflect_vlm(task=task,
+                             simulated_images=simulated_images,
+                             real_images=real_images,
+                             temperature=temperature_dict[""])
+
+    # Update configs
+    updated_config_path = revise_task_config(task_config_path=task_config_path,
+                                             reflection=reflection,
+                                             temperature=0.2,
+                                             model="gpt-4")
