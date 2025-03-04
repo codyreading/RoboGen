@@ -8,7 +8,8 @@ from manipulation.partnet_category import partnet_categories
 
 temperature_dict = {
     "task_generation": 0.6,
-    "task_revision": 0.0,
+    "llm_missing_objects": 0.0,
+    "vlm_missing_objects": 0.0,
     "reward": 0.2,
     "yaml": 0.3,
     "size": 0.1,
@@ -17,10 +18,12 @@ temperature_dict = {
 }
 
 model_name = "gpt-4"
+vlm_model_name = "gpt-4o"
 
 model_dict = {
     "task_generation": model_name,
-    "task_revision": model_name,
+    "llm_missing_objects": model_name,
+    "vlm_missing_objects": vlm_model_name,
     "reward": model_name,
     "yaml": model_name,
     "size": model_name,
@@ -28,21 +31,22 @@ model_dict = {
     "spatial_relationship": model_name
 }
 
-def create_task_configs(output_dir, category, task=None, image_path=None):
+def create_task_configs(output_dir, category, task=None, image_dir=None):
     all_task_config_paths = generate_task_manipulation(category,
                                                        temperature_dict=temperature_dict,
                                                        model_dict=model_dict,
                                                        meta_path="generated",
                                                        output_dir=output_dir,
                                                        task=task,
-                                                       image_path=image_path)
+                                                       image_dir=image_dir)
     return all_task_config_paths
 
 def main(args):
     output_dir = Path(args.output_dir)
+    image_dir = Path(args.image_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    task_config_paths = create_task_configs(output_dir, category=args.category, task=args.task, image_path=args.image_path)
+    task_config_paths = create_task_configs(output_dir, category=args.category, task=args.task, image_dir=image_dir)
 
     for task_config_path in task_config_paths:
         output_path = output_dir / f"{Path(task_config_path).stem}.gif"
@@ -62,7 +66,7 @@ if __name__ == "__main__":
                         type=str,
                         help="Object category",
                         default=None)
-    parser.add_argument('--image_path',
+    parser.add_argument('--image_dir',
                         type=str,
                         help="Path to Ego4D images",
                         default="data/ego4d")
