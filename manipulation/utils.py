@@ -534,7 +534,6 @@ def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, 
     azimuth_end = 360 + azimuth_offset
 
     for azimuth in range(azimuth_start, azimuth_end, azimuth_interval):
-        breakpoint()
         delta_x = xy_distance * np.cos(np.deg2rad(azimuth))
         delta_y = xy_distance * np.sin(np.deg2rad(azimuth))
         camera_position = [camera_target[0] + delta_x, camera_target[1] + delta_y, camera_target[2] + delta_z]

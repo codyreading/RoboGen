@@ -9,6 +9,10 @@ from visualization import manipulation
 def get_simulated_image(task_config_path, azimuth=165):
     env = manipulation.get_env(task_config_path)
     image = manipulation.visualize_image(env=env, azimuth=azimuth)
+
+    # Save image
+    image_path = Path(task_config_path).parents[0] / "simulated.png"
+    io_utils.save_image(image=image, path=image_path)
     return image
 
 def get_real_image(category, image_dir):

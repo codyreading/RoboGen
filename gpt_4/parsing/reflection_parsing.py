@@ -73,6 +73,7 @@ def update_config_with_str(task_config, updated_config):
      # Validate the updated config
     try:
         updated_config = yaml.safe_load(updated_config)
+        breakpoint()
 
         #TODO: Update config
 
