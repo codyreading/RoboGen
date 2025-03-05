@@ -90,7 +90,8 @@ def visualize(env, output_path, as_images=False, num_images=72):
 def visualize_image(env, azimuth):
     images = generate_images(env=env,
                              azimuth_offset=azimuth)
-    return images[0]
+    image = images[0].astype(np.uint8)
+    return image
 
 def save_images(images, output_path):
     output_path.mkdir(parents=True, exist_ok=True)

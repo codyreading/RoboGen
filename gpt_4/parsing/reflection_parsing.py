@@ -13,16 +13,15 @@ def config_to_str(task_config):
             obj_config = {
                 "name": config["name"],
                 "center": config["center"],
-                "size": config["size"]
+                "size": config["size"],
+                "on_table": config["on_table"]
             }
             input_config["objects"].append(obj_config)
     input_config = yaml.dump(input_config, sort_keys=False)
     return input_config
 
 def get_prompt(input_config, reflection):
-    system = """
-You are a highly skilled robotic simulator assistant.
-"""
+    system = "You are a highly skilled robotic simulator assistant."
 
     # Construct the base prompt
     prompt = f"""
@@ -40,7 +39,6 @@ task_name: task name
 
 We have the following spatial relationships:
 on, obj_A, obj_B: object A is on top of object B, e.g., a fork on the table.
-in, obj_A, obj_B: object A is inside object B, e.g., a gold ring in the safe.
 
 Ensure to only update and return the following attributes: size, center, spatial_relationships.
 
