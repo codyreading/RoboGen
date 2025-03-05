@@ -63,16 +63,18 @@ def revise_task_config_from_reflection(task_config_path, reflection, temperature
     input_config = reflection_parsing.config_to_str(task_config)
     system, prompt = reflection_parsing.get_prompt(input_config, reflection=reflection)
 
-    revised_config = query(system,
-                           user_contents=[prompt],
-                           assistant_contents=[],
-                           temperature=temperature,
-                           model=model)
+    editing_operations = query(
+        system,
+        user_contents=[prompt],
+        assistant_contents=[],
+        temperature=temperature,
+        model=model
+    )
 
-    revised_config = reflection_parsing.update_config_with_str(task_config=task_config, updated_config=revised_config)
+    revised_config = reflection_parsing.update_config_with_str(task_config=task_config, editing_operations=editing_operations)
 
     task_config_path = Path(task_config_path)
-    revised_task_config_path = task_config_path.with_name(task_config_path.stem + "_revised" + task_config_path.suffix)
+    revised_task_config_path = task_config_path.with_name(task_config_path.stem + "_edited" + task_config_path.suffix)
     with open(revised_task_config_path, 'w') as f:
         yaml.dump(revised_config, f, indent=4)
 
@@ -98,3 +100,4 @@ def edit_task_config(output_dir, task_config_path, category, task, image_dir, mo
         temperature=temperature_dict["editing"],
         model=model_dict["editing"]
     )
+    return updated_config_path

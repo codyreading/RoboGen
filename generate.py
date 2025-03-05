@@ -91,7 +91,7 @@ def main(args):
 
     # Save edited tasks
     for task_config_path in edited_task_config_paths:
-        output_path = output_dir / f"{Path(task_config_path).stem}_edited.gif"
+        output_path = output_dir / f"{Path(task_config_path).stem}.gif"
         env = manipulation.get_env(task_config_path)
         manipulation.visualize(env, output_path)
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     parser.add_argument('--task_config_path',
                         type=str,
                         help="Task config path, if you want to load an existing rather than generating one.",
-                        default="output/configs/WashingMachine_103776_2025-03-04-16-24-34/Washing_Clothes_in_Washing_Machine.yaml")
+                        default=None)
     parser.add_argument('--image_dir',
                         type=str,
                         help="Path to Ego4D images",

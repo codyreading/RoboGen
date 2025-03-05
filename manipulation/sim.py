@@ -747,10 +747,14 @@ class SimpleEnv(gym.Env):
                 p.resetBasePositionAndOrientation(obj_a_id, new_pos_a, orient_a, physicsClientId=self.id)
 
 
-            # Move object A between object B and C by placing it between the two
+            # Rescale object a (Clamps between 1/1.5 and 1.5)
             if words[0] == "rescale":
+                def clamp(x, max_rescale=2):
+                    return max(1 / max_rescale, min(x, max_rescale))
+
                 obj_a = words[1]
                 rescale_factor = float(words[2])
+                rescale_factor = clamp(rescale_factor)
 
                 # Get object parameters
                 obj_a_id = self.urdf_ids[obj_a]
@@ -771,7 +775,7 @@ class SimpleEnv(gym.Env):
                 self.urdf_ids[obj_a] = obj_a_id
                 self.simulator_sizes[obj_a] = new_size_a
 
-            # Move object A towards object B by interpolating along a straight line
+            # Move object A within a radius of object B
             if words[0] == "near":
                 obj_a = words[1]
                 obj_b = words[2]

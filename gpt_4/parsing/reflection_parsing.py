@@ -1,5 +1,6 @@
 import yaml
 import copy
+import ast
 
 def config_to_str(task_config):
     input_config = {"objects": []}
@@ -25,8 +26,8 @@ def get_prompt(input_config, reflection):
 
     # Construct the base prompt
     prompt = f"""
-You are tasked with modifying a YAML configuration file for a robotic simulator based on the following feedback.
-The feedback describes the issues with current configuration. The config is a yaml file that has items in the following format:
+You are tasked with creating specific object editing operations for a robotic simulator based on the following feedback.
+The feedback describes the issues with current configuration. You will be given a config as a yaml file that has items in the following format:
 
 objects: a list of objects that are in scene, where each object contains the following fields
     name: name of the object, so it can be referred to in the simulator
@@ -37,11 +38,13 @@ spatial_relationships: Spatial relationships certain objects should have in the 
 task_description: extended task description
 task_name: task name
 
-We have the following spatial relationships:
-on, obj_A, obj_B: object A is on top of object B, e.g., a fork on the table.
-
-Ensure to only update and return the following attributes: size, center, spatial_relationships.
-
+Please generate a list of editing operations to resolve the feedback. The available editing operations are:
+on, obj_A, obj_B: Put object A on top of object B (e.g., a fork on the table).
+towards, obj_A, obj_B, distance_factor: Move object A towards object B. The distance_factor (0-1) controls how close object A moves; 0 means no movement, 1 means A reaches B.
+away, obj_A, obj_B, distance_factor: Move object A away from object B. The distance_factor (>1) scales how far A moves; ex. 2 will move A double its current distance from B
+between, obj_A, obj_B, obj_C: Place object A between object B and object C, ensuring equal spacing between them.
+rescale, obj_A, scale_factor: Rescale object A by a scale factor (>0), where 1 means no change, <1 shrinks, and >1 enlarges the object.
+near, obj_A, obj_B, distance: Move object A to be exactly 'distance' meters away from object B.
 
 Here is the current configuration:
 ```yaml
@@ -51,32 +54,22 @@ Here is the current configuration:
 Here is the feedback describing the issues:
 "{reflection}"
 
-Make only the changes to fix the issues in the feedback. Return the entire updated YAML configuration.
-Only return the YAML content without any explanations or additional text.
-Make sure the output is valid YAML that can be parsed.
+Make only the changes to fix the issues in the feedback. Return a valid list of editing operations based on the available operations. Do not include extra explanations.
+
+Example Output: ["on, for, table", "away, fork, plate, 1.5"]
 """
     return system, prompt
 
-def update_config_with_str(task_config, updated_config):
-    # Strip any markdown code block markers if present
-    if updated_config.startswith("```yaml"):
-        updated_config = updated_config[7:]
-    if updated_config.startswith("```"):
-        updated_config = updated_config[3:]
-    if updated_config.endswith("```"):
-        updated_config = updated_config[:-3]
-
-    updated_config = updated_config.strip()
-
+def update_config_with_str(task_config, editing_operations):
      # Validate the updated config
     try:
-        updated_config = yaml.safe_load(updated_config)
-        breakpoint()
-
-        #TODO: Update config
-
+        operations = ast.literal_eval(editing_operations.strip())
     except:
         print("Invalid reflection updated, not changing anything")
-        updated_config = task_config
+        operations = []
 
-    return updated_config
+    for config in task_config:
+        if "spatial_relationships" in config:
+            config["spatial_relationships"].extend(operations)
+
+    return task_config
