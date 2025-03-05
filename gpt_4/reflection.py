@@ -3,16 +3,20 @@ from gpt_4.query import query_vlm, query
 from gpt_4.parsing import reflection_parsing
 from pathlib import Path
 from utils import io_utils
+from visualization import manipulation
 
-def get_simulated_image():
-    raise NotImplementedError
+
+def get_simulated_image(task_config_path, azimuth=165):
+    env = manipulation.get_env(task_config_path)
+    image = manipulation.visualize_image(env=env, azimuth=azimuth)
+    return image
 
 def get_real_image(category, image_dir):
     image_path = image_dir / f"{category}.png"
     image = io_utils.load_image(image_path)
     return image
 
-def reflect_vlm(simulated_images, real_images, task):
+def reflect_vlm(simulated_images, real_images, task, temperature, model):
     system_prompt = """You are a computer vision expert specializing in analyzing differences between simulation and real-world environments. Your strength lies in precise object analysis and clear, structured feedback."""
 
     task_prompt = """In the two images provided:
@@ -45,7 +49,7 @@ SUMMARY:
 Brief overview of the most critical issues for task success."""
 
     images = simulated_images + real_images
-    response = query_vlm(system=system_prompt, images=images, prompt=task_prompt)
+    response = query_vlm(system=system_prompt, images=images, prompt=task_prompt, temperature=temperature, model=model)
     return response
 
 def revise_task_config_from_reflection(task_config_path, reflection, temperature, model):
@@ -53,13 +57,13 @@ def revise_task_config_from_reflection(task_config_path, reflection, temperature
         task_config = yaml.safe_load(file)
 
     input_config = reflection_parsing.config_to_str(task_config)
-    system, prompt = reflection_parsing.get_prompt(input_config)
+    system, prompt = reflection_parsing.get_prompt(input_config, reflection=reflection)
 
     revised_config = query(system,
-                     user_contents=[prompt],
-                     assistant_contents=[],
-                     temperature=temperature,
-                     model=model)
+                           user_contents=[prompt],
+                           assistant_contents=[],
+                           temperature=temperature,
+                           model=model)
 
     revised_config = reflection_parsing.update_config_with_str(task_config=task_config, updated_config=revised_config)
 
@@ -72,19 +76,21 @@ def revise_task_config_from_reflection(task_config_path, reflection, temperature
 
 
 def edit_task_config(output_dir, task_config_path, category, task, image_dir, model_dict, temperature_dict):
-    breakpoint()
     # Get images
-    simulated_image = get_sim_image()
+    simulated_image = get_simulated_image(task_config_path)
     real_image = get_real_image(category=category, image_dir=image_dir)
 
     # Reflect with VLM
     reflection = reflect_vlm(task=task,
                              simulated_images=[simulated_image],
                              real_images=[real_image],
-                             temperature=temperature_dict["reflection",])
+                             temperature=temperature_dict["reflection"],
+                             model=model_dict["reflection"])
 
     # Update configs
-    updated_config_path = revise_task_config(task_config_path=task_config_path,
-                                             reflection=reflection,
-                                             temperature=0.2,
-                                             model="gpt-4")
+    updated_config_path = revise_task_config_from_reflection(
+        task_config_path=task_config_path,
+        reflection=reflection,
+        temperature=temperature_dict["editing"],
+        model=model_dict["editing"]
+    )

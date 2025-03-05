@@ -68,11 +68,13 @@ def main(args):
     image_dir = Path(args.image_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Create task configs
     if args.task_config_path is None:
         task_config_paths = create_task_configs(output_dir, category=args.category, task=args.task, image_dir=image_dir)
     else:
         task_config_paths = [args.task_config_path]
 
+    # Edit task configs
     edited_task_config_paths = edit_task_configs(output_dir=output_dir,
                                                  task_config_paths=task_config_paths,
                                                  category=args.category,
@@ -81,9 +83,15 @@ def main(args):
                                                  model_dict=model_dict,
                                                  temperature_dict=temperature_dict)
 
+    # Save original tasks
     for task_config_path in task_config_paths:
         output_path = output_dir / f"{Path(task_config_path).stem}.gif"
+        env = manipulation.get_env(task_config_path)
+        manipulation.visualize(env, output_path)
 
+    # Save edited tasks
+    for task_config_path in edited_task_config_paths:
+        output_path = output_dir / f"{Path(task_config_path).stem}_edited.gif"
         env = manipulation.get_env(task_config_path)
         manipulation.visualize(env, output_path)
 
@@ -94,15 +102,15 @@ if __name__ == "__main__":
     parser.add_argument('--task',
                         type=str,
                         help="Task description",
-                        default=None)
+                        default="Wash my clothes in the washing machine")
     parser.add_argument('--category',
                         type=str,
                         help="Object category",
-                        default=None)
+                        default="WashingMachine")
     parser.add_argument('--task_config_path',
                         type=str,
                         help="Task config path, if you want to load an existing rather than generating one.",
-                        default=None)
+                        default="output/configs/WashingMachine_103776_2025-03-04-16-24-34/Washing_Clothes_in_Washing_Machine.yaml")
     parser.add_argument('--image_dir',
                         type=str,
                         help="Path to Ego4D images",

@@ -51,7 +51,7 @@ def get_env(task_config_path,
     env.reset()
     return env
 
-def generate_images(env, distance=1.6, num_images=1, elevation=30):
+def generate_images(env, distance=1.6, num_images=1, elevation=30, azimuth_offset=0):
     center = None
     if env.use_table:
         center = np.array([0, 0, 0.4])
@@ -74,6 +74,7 @@ def generate_images(env, distance=1.6, num_images=1, elevation=30):
                                      distance=distance,
                                      elevation=elevation,
                                      azimuth_interval=azimuth_interval,
+                                     azimuth_offset=azimuth_offset,
                                      camera_width=512,
                                      camera_height=512)
     return rgbs
@@ -85,6 +86,11 @@ def visualize(env, output_path, as_images=False, num_images=72):
         save_images(images=rgbs, output_path=output_path)
     else:
         save_numpy_as_gif(np.array(rgbs), output_path, fps=10)
+
+def visualize_image(env, azimuth):
+    images = generate_images(env=env,
+                             azimuth_offset=azimuth)
+    return images[0]
 
 def save_images(images, output_path):
     output_path.mkdir(parents=True, exist_ok=True)

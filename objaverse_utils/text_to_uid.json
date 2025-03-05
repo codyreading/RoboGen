@@ -7246,5 +7246,37 @@
         "0063053f17184809b299f99730288354",
         "da4d51b9c8974e6e88075bcfd8ca4200",
         "b09b1c31bd0944599d86a46572191f28"
+    ],
+    "a bottle of fabric softener": [
+        "269e62bfe6124fa1911a541a845f86c1",
+        "c1f73d85752749be8252622ae03bd3d6",
+        "21bb3c10fec94d1083bcbbdaa704747f",
+        "dc41dcf6b6944d6fb6ba626808ecebfd",
+        "dbdd860600ba4bcab5c33f5dfd0b6921",
+        "8891dc71ede1450b9d70ebde1b153822"
+    ],
+    "a bottle of fabric softener_all": [
+        "269e62bfe6124fa1911a541a845f86c1",
+        "c1f73d85752749be8252622ae03bd3d6",
+        "21bb3c10fec94d1083bcbbdaa704747f",
+        "dc41dcf6b6944d6fb6ba626808ecebfd",
+        "dbdd860600ba4bcab5c33f5dfd0b6921",
+        "8891dc71ede1450b9d70ebde1b153822"
+    ],
+    "a bottle of bleach": [
+        "522de1d948004544b07cd36a078f49a6",
+        "1172e7306e654dd6821fa697dea801e9",
+        "27a18833edf44f25800d470c54067cb5",
+        "1addc12b31e64a1aad3b09ee454d1cd0",
+        "3a41cd0ae91446f9a61928b1aa827857",
+        "cc437ab079f0488d981043b79d0f65cf"
+    ],
+    "a bottle of bleach_all": [
+        "522de1d948004544b07cd36a078f49a6",
+        "1172e7306e654dd6821fa697dea801e9",
+        "27a18833edf44f25800d470c54067cb5",
+        "1addc12b31e64a1aad3b09ee454d1cd0",
+        "3a41cd0ae91446f9a61928b1aa827857",
+        "cc437ab079f0488d981043b79d0f65cf"
     ]
 }

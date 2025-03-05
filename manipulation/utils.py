@@ -518,7 +518,7 @@ def parse_config(config, use_bard=True, obj_id=None, use_gpt_size=True, use_vhac
 
 
 
-def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, camera_width=640, camera_height=480,
+def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, azimuth_offset=0, camera_width=640, camera_height=480,
                         return_camera_matrices=False, z_near=0.01, z_far=10, save_path=None):
     camera_target = center
     delta_z = distance * np.sin(np.deg2rad(elevation))
@@ -530,7 +530,11 @@ def take_round_images(env, center, distance, elevation=30, azimuth_interval=30, 
     depths = []
     view_camera_matrices = []
     project_camera_matrices = []
-    for azimuth in range(0, 360, azimuth_interval):
+    azimuth_start = azimuth_offset
+    azimuth_end = 360 + azimuth_offset
+
+    for azimuth in range(azimuth_start, azimuth_end, azimuth_interval):
+        breakpoint()
         delta_x = xy_distance * np.cos(np.deg2rad(azimuth))
         delta_y = xy_distance * np.sin(np.deg2rad(azimuth))
         camera_position = [camera_target[0] + delta_x, camera_target[1] + delta_y, camera_target[2] + delta_z]

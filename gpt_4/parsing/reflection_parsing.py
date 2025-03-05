@@ -74,6 +74,8 @@ def update_config_with_str(task_config, updated_config):
     try:
         updated_config = yaml.safe_load(updated_config)
 
+        #TODO: Update config
+
     except:
         print("Invalid reflection updated, not changing anything")
         updated_config = task_config
