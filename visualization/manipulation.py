@@ -1,14 +1,59 @@
 import os
 import yaml
 import numpy as np
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 from manipulation.utils import build_up_env, take_round_images, save_numpy_as_gif
 from utils import io_utils
 
+def visualize(config_path, output_dir, as_images=False, num_images=72, single_thread=False):
+    stabilizes = [False, True]
+
+    if single_thread:
+        for stabilize in stabilizes:
+            visualize_single(config_path=config_path, output_dir=output_dir, stabilize=stabilize, as_images=as_images, num_images=num_images)
+    else:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            # Submit all tasks to the executor
+            futures = [
+                executor.submit(
+                    visualize_single,
+                    config_path=config_path,
+                    output_dir=output_dir,
+                    stabilize=stabilize,
+                    as_images=as_images,
+                    num_images=num_images
+                )
+                for stabilize in stabilizes
+            ]
+
+        # Wait for all futures to complete
+        for future in futures:
+            future.result()  # This will re-raise any exceptions that occurred
+
+def visualize_single(config_path, output_dir, stabilize, as_images=False, num_images=72):
+    name = Path(config_path).stem
+
+    if as_images:
+        output_path = output_dir / f"{name}_stabilize_{stabilize}"
+        output_path.mkdir(parents=True, exist_ok=True)
+    else:
+        output_path = output_dir /  f"{name}_stabilize_{stabilize}.gif"
+
+    env = get_env(config_path, stabilize=stabilize)
+    rgbs = generate_images(env, num_images=num_images)
+
+    if as_images:
+        save_images(images=rgbs, output_path=output_path)
+    else:
+        save_numpy_as_gif(np.array(rgbs), output_path, fps=10)
+
 def get_env(task_config_path,
                          gui=False,
                          randomize=False, # whether to randomize the initial state of the environment.
-                         obj_id=0): # which object to use from the list of possible objects.):
+                         obj_id=0,
+                         stabilize=True): # which object to use from the list of possible objects.):
     with open(task_config_path, 'r') as file:
         task_config = yaml.safe_load(file)
 
@@ -46,7 +91,7 @@ def get_env(task_config_path,
         render=gui,
         randomize=randomize,
         obj_id=obj_id,
-        stabilize=False
+        stabilize=stabilize
     )
     env.reset()
     return env
@@ -78,14 +123,6 @@ def generate_images(env, distance=1.6, num_images=1, elevation=30, azimuth_offse
                                      camera_width=512,
                                      camera_height=512)
     return rgbs
-
-def visualize(env, output_path, as_images=False, num_images=72):
-    rgbs = generate_images(env, num_images=num_images)
-
-    if as_images:
-        save_images(images=rgbs, output_path=output_path)
-    else:
-        save_numpy_as_gif(np.array(rgbs), output_path, fps=10)
 
 def visualize_image(env, azimuth):
     images = generate_images(env=env,

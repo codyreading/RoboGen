@@ -233,15 +233,15 @@ class SimpleEnv(gym.Env):
         ### load each object from the task config
         self.load_object(urdf_paths, urdf_sizes, urdf_positions, urdf_names, urdf_types, urdf_on_table, urdf_movables)
 
-        ### handle any special relationships outputted by GPT
-        self.handle_gpt_special_relationships(spatial_relationships)
-
-        ### adjusting object positions
+       ### adjusting object positions
         ### place the lowest point on the object to be the height where GPT specifies
         object_height = self.adjust_object_positions(robot_base_pos)
 
         ### resolve collisions between objects
         self.resolve_collision(robot_base_pos, object_height, spatial_relationships)
+
+        ### handle any special relationships outputted by GPT
+        self.handle_gpt_special_relationships(spatial_relationships)
 
         ### set all object's joint angles to the lower joint limit
         self.set_to_default_joint_angles()
