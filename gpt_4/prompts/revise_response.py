@@ -82,12 +82,12 @@ Task: {task}
 Current list of objects: {', '.join(objects)}
 
 IMPORTANT INSTRUCTIONS:
-- Return ONLY specific, individual items
+- Return ONLY individual items
 - DO NOT return categories or general classes of items
 - Each item must be a concrete, individual object
 
 For example:
-- CORRECT: ["wooden broom", "dustpan", "vacuum cleaner"]
+- CORRECT: ["broom", "dustpan", "vacuum cleaner"]
 - INCORRECT: ["cleaning tools", "kitchen utensils", "gardening equipment"]
 
 Please identify ALL objects mentioned in the task that are not already in the current list of objects.
@@ -115,12 +115,12 @@ Task: {task}
 Current list of objects: {', '.join(objects)}
 
 IMPORTANT INSTRUCTIONS:
-- Return ONLY specific, individual items
+- Return ONLY individual items
 - DO NOT return categories or general classes of items
 - Each item must be a concrete, individual object
 
 For example:
-- CORRECT: ["wooden broom", "plastic dustpan", "vacuum cleaner"]
+- CORRECT: ["broom", "dustpan", "vacuum cleaner"]
 - INCORRECT: ["cleaning tools", "kitchen utensils", "gardening equipment"]
 
 Please identify ALL objects in the image that are not already in the current list of objects.

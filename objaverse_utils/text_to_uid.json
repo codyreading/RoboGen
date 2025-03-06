@@ -7294,5 +7294,58 @@
         "c6e9f4585a054e5fb0a86b42c94d0d9b",
         "85c462ab804c4e58844860f9575a6a16",
         "115670d120b7496f983fb7579ce14dcc"
+    ],
+    "a bottle of Ariel detergent": [
+        "21bb3c10fec94d1083bcbbdaa704747f",
+        "5dd9aea68f3848c79aa5725baa314111"
+    ],
+    "a bottle of Ariel detergent_all": [
+        "269e62bfe6124fa1911a541a845f86c1",
+        "21bb3c10fec94d1083bcbbdaa704747f",
+        "dc41dcf6b6944d6fb6ba626808ecebfd",
+        "5dd9aea68f3848c79aa5725baa314111",
+        "215fd2f1bec3457fbf2fd5fa36c806c8",
+        "8891dc71ede1450b9d70ebde1b153822"
+    ],
+    "a bottle of Comfort fabric conditioner": [
+        "13a2f484eba24336b6c92127398407db",
+        "269e62bfe6124fa1911a541a845f86c1",
+        "dc41dcf6b6944d6fb6ba626808ecebfd",
+        "dbdd860600ba4bcab5c33f5dfd0b6921",
+        "8891dc71ede1450b9d70ebde1b153822",
+        "a3c6409056bc4a8690dc5ddc85d76d2c"
+    ],
+    "a bottle of Comfort fabric conditioner_all": [
+        "13a2f484eba24336b6c92127398407db",
+        "269e62bfe6124fa1911a541a845f86c1",
+        "dc41dcf6b6944d6fb6ba626808ecebfd",
+        "dbdd860600ba4bcab5c33f5dfd0b6921",
+        "8891dc71ede1450b9d70ebde1b153822",
+        "a3c6409056bc4a8690dc5ddc85d76d2c"
+    ],
+    "a pile of dirty clothes": [
+        "145f510921ba45489e1536b3c47b6b85",
+        "145f510921ba45489e1536b3c47b6b85",
+        "145f510921ba45489e1536b3c47b6b85"
+    ],
+    "a pile of dirty clothes_all": [
+        "145f510921ba45489e1536b3c47b6b85",
+        "c796162abd54446abbeedb4deef32f87",
+        "145f510921ba45489e1536b3c47b6b85",
+        "4d23ca4a9c8548589725dc71e86772e8",
+        "667b952b043844e98b5abd67df090b47",
+        "145f510921ba45489e1536b3c47b6b85"
+    ],
+    "a box of laundry detergent": [
+        "2e97657e4fd849529e6184558f9670cd",
+        "5dd9aea68f3848c79aa5725baa314111"
+    ],
+    "a box of laundry detergent_all": [
+        "269e62bfe6124fa1911a541a845f86c1",
+        "dc41dcf6b6944d6fb6ba626808ecebfd",
+        "21bb3c10fec94d1083bcbbdaa704747f",
+        "2e97657e4fd849529e6184558f9670cd",
+        "5dd9aea68f3848c79aa5725baa314111",
+        "63ac173b927b404e9582e817361c583d"
     ]
 }

@@ -5,7 +5,7 @@
 #SBATCH --time=24:00:00                    # (Optional) Max run time (5 minutes)
 #SBATCH --output=logs/output.%j                 # Standard output log (%j will be replaced with Job ID)
 #SBATCH --error=logs/error.%j                   # Standard error log
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=32
 
 # Run the nvidia-smi command
 echo "Running job on the allocated GPU(s):"
@@ -18,7 +18,7 @@ LOG_DIR="logs"
 mkdir -p "$LOG_DIR"  # Ensure log directory exists
 
 # Define the CSV file path
-CSV_FILE="ego4d_experiments.csv"
+CSV_FILE="5_experiments.csv"
 index=0
 
 # Set IFS to handle CSV properly (handle quoted values correctly)
@@ -35,7 +35,7 @@ while IFS=, read -r category task || [[ -n "$category" ]]; do
     LOG_FILE="$LOG_DIR/${index}_${CATEGORY}.log"
     CMD="python generate.py --task ${TASK} --category ${CATEGORY} &>> ${LOG_FILE} &"
     echo $CMD
-    #eval $CMD
+    eval $CMD
 
     # Increment index
     ((index++))
