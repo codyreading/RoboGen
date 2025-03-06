@@ -40,7 +40,7 @@ def main(args):
 
     if args.single_thread:
         for config_path in config_paths:
-            manipulation.visualize(config_path=config_path, output_dir=output_dir, as_images=args.as_images, num_images=args.num_images, single_thread=args.single_thread)
+            manipulation.visualize(config_path=config_path, output_dir=output_dir)
     else:
         with ThreadPoolExecutor(max_workers=2) as executor:
             # Submit all tasks to the executor
@@ -49,9 +49,6 @@ def main(args):
                     manipulation.visualize,
                     config_path=config_path,
                     output_dir=output_dir,
-                    as_images=args.as_images,
-                    num_images=args.num_images,
-                    single_thread=args.single_thread
                 )
                 for config_path in config_paths
             ]
@@ -75,13 +72,6 @@ if __name__ == "__main__":
     parser.add_argument('--output_dir',
                         default='output',
                         help='Output directory')
-    parser.add_argument('--as_images',
-                        action='store_true',
-                        help='Output as images rather than as gif')
-    parser.add_argument('--num_images',
-                        type=int,
-                        default=72,
-                        help='Number of images in visualization')
     parser.add_argument('--single_thread',
                         action="store_true",
                         help='Only run in a single thread')

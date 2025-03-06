@@ -6,14 +6,16 @@ from gym import spaces
 import pickle
 import yaml
 import os.path as osp
+from pathlib import Path
 from collections import defaultdict
 from scipy.spatial.transform import Rotation as R
 from manipulation.panda import Panda
 from manipulation.ur5 import UR5
 from manipulation.sawyer import Sawyer
-from manipulation.utils import parse_config, load_env, download_and_parse_objavarse_obj_from_yaml_config
+from manipulation.utils import parse_config, load_env, download_and_parse_objavarse_obj_from_yaml_config, save_numpy_as_gif
 from manipulation.gpt_reward_api import get_joint_id_from_name, get_link_id_from_name
 from utils import editing_utils
+from visualization.manipulation import generate_images
 
 class SimpleEnv(gym.Env):
     def __init__(self,
@@ -32,12 +34,14 @@ class SimpleEnv(gym.Env):
                     vhacd=False, # if to perform vhacd on the object for better collision detection for pybullet
                     randomize=0, # if to randomize the scene
                     obj_id=0, # which object to choose to use from the candidates
-                    stabilize=True
+                    visualize=False,
+                    output_dir=None
                 ):
 
         super().__init__()
 
         # Task
+        self.name = Path(config_path).stem
         self.config_path = config_path
         self.restore_state_file = restore_state_file
         self.frameskip = frameskip
@@ -49,6 +53,8 @@ class SimpleEnv(gym.Env):
         self.primitive_save_path = None # to be used for saving the primitives execution results
         self.randomize = randomize
         self.obj_id = obj_id # which object to choose to use from the candidates
+        self.visualize = visualize
+        self.output_dir = output_dir
 
         # physics
         self.gravity = -9.81
@@ -79,7 +85,7 @@ class SimpleEnv(gym.Env):
         p.setTimeStep(1.0 / hz, physicsClientId=self.id)
 
         self.seed()
-        self.set_scene(stabilize)
+        self.set_scene()
         self.setup_camera_rpy()
         self.scene_lower, self.scene_upper = self.get_scene_bounds()
         self.scene_center = (self.scene_lower + self.scene_upper) / 2
@@ -187,7 +193,7 @@ class SimpleEnv(gym.Env):
         return init_joint_angles
 
     def set_scene(
-        self, stabilize
+        self
     ):
         ### simulation preparation
         p.resetSimulation(physicsClientId=self.id)
@@ -233,15 +239,27 @@ class SimpleEnv(gym.Env):
         ### load each object from the task config
         self.load_object(urdf_paths, urdf_sizes, urdf_positions, urdf_names, urdf_types, urdf_on_table, urdf_movables)
 
+        if self.visualize:
+            self.visualize_scene(step="load_object")
+
        ### adjusting object positions
         ### place the lowest point on the object to be the height where GPT specifies
         object_height = self.adjust_object_positions(robot_base_pos)
 
+        if self.visualize:
+            self.visualize_scene(step="object_height")
+
         ### resolve collisions between objects
         self.resolve_collision(robot_base_pos, object_height, spatial_relationships)
 
+        if self.visualize:
+            self.visualize_scene(step="resolve_collisions")
+
         ### handle any special relationships outputted by GPT
         self.handle_gpt_special_relationships(spatial_relationships)
+
+        if self.visualize:
+            self.visualize_scene(step="editing_operations")
 
         ### set all object's joint angles to the lower joint limit
         self.set_to_default_joint_angles()
@@ -252,10 +270,12 @@ class SimpleEnv(gym.Env):
         ### record initial joint angles and positions
         self.record_initial_joint_and_pose()
 
-        if stabilize:
         ### stabilize the scene
-            for _ in range(500):
-                p.stepSimulation(physicsClientId=self.id)
+        for _ in range(500):
+            p.stepSimulation(physicsClientId=self.id)
+
+        if self.visualize:
+            self.visualize_scene(step="stabilize")
 
         ### restore to a state if provided
         if self.restore_state_file is not None:
@@ -266,7 +286,6 @@ class SimpleEnv(gym.Env):
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1, physicsClientId=self.id)
 
         self.init_state = p.saveState(physicsClientId=self.id)
-
 
     def load_robot(self, restore_state):
         robot_classes = {
@@ -1091,3 +1110,12 @@ class SimpleEnv(gym.Env):
 
     def close(self):
         p.disconnect(self.id)
+
+    def visualize_scene(self, step, num_images=72):
+        output_dir = self.output_dir / self.name
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / f"{step}.gif"
+
+        breakpoint()
+        rgbs = generate_images(self, num_images=num_images)
+        save_numpy_as_gif(np.array(rgbs), output_path, fps=10)

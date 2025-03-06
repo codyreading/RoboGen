@@ -139,7 +139,7 @@ def load_gif(gif_path):
 
 def build_up_env(task_config, solution_path, task_name, restore_state_file, return_env_class=False,
                     action_space='delta-translation', render=False, randomize=False,
-                    obj_id=0, stabilize=True
+                    obj_id=0, visualize=False, output_dir=None
                 ):
 
     save_config = copy.deepcopy(default_config)
@@ -150,7 +150,8 @@ def build_up_env(task_config, solution_path, task_name, restore_state_file, retu
     save_config['gui'] = render
     save_config['randomize'] = randomize
     save_config['obj_id'] = obj_id
-    save_config['stabilize'] = stabilize
+    save_config['visualize'] = visualize
+    save_config['output_dir'] = output_dir
 
     ### you might want to restore to a specific state
     module = importlib.import_module("{}.{}".format(solution_path.replace("/", "."), task_name))
