@@ -92,3 +92,30 @@ def near(pos_a, pos_b, distance):
 
     # Return the new position with Z from pos_a
     return (float(x_new), float(y_new), z_a)
+
+
+def calculate_2d_bbox_fit(obj_a_bbox, target_bbox):
+    """
+    Calculate the maximum/minimum coordinates where a smaller bbox can fit within a larger bbox.
+
+    Parameters:
+    obj_a_bbox: tuple of (min, max) coordinates, each as 3D numpy arrays
+    target_bbox: tuple of (min, max) coordinates, each as 3D numpy arrays
+
+    Returns:
+    tuple: (min_coords, max_coords) where each is a 2D numpy array (X,Y only)
+    """
+    # Extract min/max from both bounding boxes
+    obj_min, obj_max = obj_a_bbox
+    target_min, target_max = target_bbox
+
+    # Calculate object dimensions
+    obj_size = obj_max - obj_min
+
+    # Calculate valid min/max positions where object can fit
+    # Min position: target_min
+    # Max position: target_max - obj_dims_2d
+    valid_min = target_min.copy()
+    valid_max = target_max - obj_size
+
+    return valid_min, valid_max

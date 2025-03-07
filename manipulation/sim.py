@@ -16,6 +16,7 @@ from manipulation.utils import parse_config, load_env, download_and_parse_objava
 from manipulation.gpt_reward_api import get_joint_id_from_name, get_link_id_from_name
 from utils import editing_utils
 from visualization.manipulation import generate_images
+import random
 
 class SimpleEnv(gym.Env):
     def __init__(self,
@@ -239,15 +240,9 @@ class SimpleEnv(gym.Env):
         ### load each object from the task config
         self.load_object(urdf_paths, urdf_sizes, urdf_positions, urdf_names, urdf_types, urdf_on_table, urdf_movables)
 
-        if self.visualize:
-            self.visualize_scene(step="load_object")
-
-       ### adjusting object positions
+        ### adjusting object positions
         ### place the lowest point on the object to be the height where GPT specifies
         object_height = self.adjust_object_positions(robot_base_pos)
-
-        if self.visualize:
-            self.visualize_scene(step="object_height")
 
         ### resolve collisions between objects
         self.resolve_collision(robot_base_pos, object_height, spatial_relationships)
@@ -624,9 +619,109 @@ class SimpleEnv(gym.Env):
                 joint_val = joint_limit_low + 0.06 * (joint_limit_high - joint_limit_low)
                 p.resetJointState(obj_id, joint_idx, joint_val, physicsClientId=self.id)
 
+    def resolve_collisions_on_relationship(self, obj_a, obj_a_bbox, target_bbox, on_objects, max_attempts=50, padding_ratio=0.05):
+        """
+        Resolves collisions by moving obj_a in the XY plane to avoid intersections with objects in on_objects.
+
+        Args:
+            obj_a (str): Name of the object to check and potentially move]
+            on_objects (list): List of object names to check for collisions with
+
+        Returns:
+            bool: True if collision resolved successfully, False otherwise
+        """
+
+        # Get object A
+        obj_a_id = self.urdf_ids[obj_a]
+        pos_a, orn_a = p.getBasePositionAndOrientation(obj_a_id)
+        z_pos = pos_a[2]
+
+        # First check if current position has collisions
+        if not self.has_collision(obj_a_id, on_objects):
+            return True
+
+        # Compute limits to fit object A within target
+        within_min, within_max = editing_utils.calculate_2d_bbox_fit(obj_a_bbox, target_bbox)
+
+        # Add padding to ensure it stays above surface
+        target_min, target_max = target_bbox
+        target_size = target_max - target_min
+        padding = padding_ratio * target_size
+        within_min += padding
+        within_max -= padding
+
+        # Add offset relative to object center
+        obj_a_bbox_min, _ = obj_a_bbox
+        center_offset = np.array(pos_a) - obj_a_bbox_min
+        within_min += center_offset
+        within_max += center_offset
+
+        # Get min, max for XY
+        min_x, min_y, _ = within_min
+        max_x, max_y, _ = within_max
+
+        # Try sampling points uniformly within the target AABB
+        for _ in range(max_attempts):
+            # Sample a random XY position within the AABB
+            new_x = random.uniform(min_x, max_x)
+            new_y = random.uniform(min_y, max_y)
+            new_pos = (new_x, new_y, z_pos)
+
+            # Move object to new position
+            p.resetBasePositionAndOrientation(obj_a_id, new_pos, orn_a)
+
+            # Check if this position resolves collisions
+            if not self.has_collision(obj_a_id, on_objects):
+                # Found a good position
+                return True
+
+        # If we get here, we couldn't find a position without collisions
+        # Reset to original position
+        p.resetBasePositionAndOrientation(obj_a_id, pos_a, orn_a)
+        return False
+
+    def has_collision(self, obj_a_id, on_objects, collision_threshold = 0.01):
+        """
+        Helper function to check if obj_a_id collides with any objects in on_objects
+
+        Args:
+            obj_a_id: PyBullet ID of the object to check
+            on_objects: List of object names to check against
+
+        Returns:
+            bool: True if any collision is detected, False otherwise
+        """
+
+        for obj_b in on_objects:
+            obj_b_id = self.urdf_ids[obj_b]
+
+            if obj_a_id == obj_b_id:
+                continue  # Skip self-collision
+
+            # Use getClosestPoints to check for collisions
+            closest_points = p.getClosestPoints(obj_a_id, obj_b_id, distance=collision_threshold)
+
+            if closest_points:
+                # If we found any points within our threshold, there's a collision
+                return True
+
+        # No collisions found
+        return False
+
     def handle_gpt_special_relationships(self, spatial_relationships):
-        # we support "on" and "in" for now, but this can be extended to more relationships
+
+        # Sort to do scaling first
+        priority = []
+        others = []
         for spatial_relationship in spatial_relationships:
+            if spatial_relationship.strip().startswith(("rescale", "match_size")):
+                priority.append(spatial_relationship)
+            else:
+                others.append(spatial_relationship)
+        sorted_relationships = priority + others
+
+        on_relationships = {}
+        for spatial_relationship in sorted_relationships:
             words = spatial_relationship.lower().split(",")
             words = [word.strip().lstrip() for word in words]
             if words[0] == "on":
@@ -636,6 +731,7 @@ class SimpleEnv(gym.Env):
                     obj_b_link = words[3]
                     obj_b_link_id = get_link_id_from_name(self, obj_b, obj_b_link)
                 else:
+                    obj_b_link = None
                     obj_b_link_id = -1
 
                 if "table" not in self.urdf_ids:
@@ -645,9 +741,10 @@ class SimpleEnv(gym.Env):
                         obj_b = "init_table"
 
                 obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
-
+                obj_a_pos, _ = p.getBasePositionAndOrientation(obj_a_id)
                 obj_a_bbox_min, obj_a_bbox_max = self.get_aabb(obj_a_id)
                 obj_a_size = obj_a_bbox_max - obj_a_bbox_min
+
                 if obj_b_link_id == -1:
                     target_aabb_min, target_aabb_max = self.get_aabb(obj_b_id)
                 else:
@@ -656,8 +753,9 @@ class SimpleEnv(gym.Env):
                 id_point = p.addUserDebugPoints([(target_aabb_min + target_aabb_max) / 2], [[0, 0, 1]], 10, 0, physicsClientId=self.id)
 
                 new_pos = (target_aabb_min + target_aabb_max) / 2
-                new_pos[2] = target_aabb_max[2] # put obj a on top of obj b.
-                new_pos[2] += obj_a_size[2] # add the height of obj a
+
+                obj_a_origin_height = obj_a_pos[2] - obj_a_bbox_min[2]
+                new_pos[2] = target_aabb_max[2] + obj_a_origin_height # put obj a on top of obj b.
                 if not self.randomize:
                     obj_a_orientation = p.getQuaternionFromEuler([np.pi/2, 0, 0], physicsClientId=self.id)
                 else:
@@ -668,6 +766,19 @@ class SimpleEnv(gym.Env):
 
                 p.removeUserDebugItem(id_line, physicsClientId=self.id)
                 p.removeUserDebugItem(id_point, physicsClientId=self.id)
+
+                # Update on relationships
+                key = (obj_b, obj_b_link)
+                if key not in on_relationships:
+                    on_relationships[key] = []
+                on_relationships[key].append(obj_a)
+
+                # Resolve collisions
+                self.resolve_collisions_on_relationship(obj_a=obj_a,
+                                                        obj_a_bbox=(obj_a_bbox_min, obj_a_bbox_max),
+                                                        target_bbox=(target_aabb_min, target_aabb_max),
+                                                        on_objects=on_relationships[key])
+
 
             if words[0] == 'in':
                 obj_a = words[1]
@@ -1116,6 +1227,8 @@ class SimpleEnv(gym.Env):
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{step}.gif"
 
-        breakpoint()
+        if not hasattr(self, 'view_matrix'):
+             self.setup_camera_rpy()
+
         rgbs = generate_images(self, num_images=num_images)
         save_numpy_as_gif(np.array(rgbs), output_path, fps=10)
