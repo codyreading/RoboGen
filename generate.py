@@ -4,7 +4,8 @@ from pathlib import Path
 from visualization import manipulation
 
 from gpt_4.prompts.prompt_manipulation import generate_task as generate_task_manipulation
-from gpt_4.reflection import edit_task_config
+from gpt_4.reflection import reflect_task_config
+from gpt_4.error_fix import error_fix_task_config
 from manipulation.partnet_category import partnet_categories
 
 temperature_dict = {
@@ -48,17 +49,23 @@ def create_task_configs(output_dir, category, task=None, image_dir=None):
     return all_task_config_paths
 
 
-def edit_task_configs(output_dir, task_config_paths, category, task, image_dir, model_dict, temperature_dict):
+def error_fix_task_configs(task_config_paths):
+    for task_config_path in task_config_paths:
+        error_fix_task_config(task_config_path)
+
+
+
+def reflect_task_configs(output_dir, task_config_paths, category, task, image_dir, model_dict, temperature_dict):
     edited_task_config_paths = []
 
     for task_config_path in task_config_paths:
-        edited_task_config_path = edit_task_config(output_dir=output_dir,
-                                                   task_config_path=task_config_path,
-                                                   category=category,
-                                                   task=task,
-                                                   image_dir=image_dir,
-                                                   model_dict=model_dict,
-                                                   temperature_dict=temperature_dict)
+        edited_task_config_path = reflect_task_config(output_dir=output_dir,
+                                                      task_config_path=task_config_path,
+                                                      category=category,
+                                                      task=task,
+                                                      image_dir=image_dir,
+                                                      model_dict=model_dict,
+                                                      temperature_dict=temperature_dict)
         edited_task_config_paths.append(edited_task_config_path)
 
     return edited_task_config_paths
@@ -74,26 +81,25 @@ def main(args):
     else:
         task_config_paths = [args.task_config_path]
 
+    error_fix_task_configs(task_config_paths)
+
     # Edit task configs
-    edited_task_config_paths = edit_task_configs(output_dir=output_dir,
-                                                 task_config_paths=task_config_paths,
-                                                 category=args.category,
-                                                 task=args.task,
-                                                 image_dir=image_dir,
-                                                 model_dict=model_dict,
-                                                 temperature_dict=temperature_dict)
+    edited_task_config_paths = reflect_task_configs(output_dir=output_dir,
+                                                    task_config_paths=task_config_paths,
+                                                    category=args.category,
+                                                    task=args.task,
+                                                    image_dir=image_dir,
+                                                    model_dict=model_dict,
+                                                    temperature_dict=temperature_dict)
 
     # Save original tasks
     for task_config_path in task_config_paths:
-        output_path = output_dir / f"{Path(task_config_path).stem}.gif"
-        env = manipulation.get_env(task_config_path)
-        manipulation.visualize(env, output_path)
+        manipulation.visualize(config_path=task_config_path, output_dir=output_dir)
 
     # Save edited tasks
     for task_config_path in edited_task_config_paths:
-        output_path = output_dir / f"{Path(task_config_path).stem}.gif"
-        env = manipulation.get_env(task_config_path)
-        manipulation.visualize(env, output_path)
+        manipulation.visualize(config_path=task_config_path, output_dir=output_dir)
+
 
 
 if __name__ == "__main__":
@@ -102,11 +108,11 @@ if __name__ == "__main__":
     parser.add_argument('--task',
                         type=str,
                         help="Task description",
-                        default="Wash my clothes in the washing machine")
+                        required=True)
     parser.add_argument('--category',
                         type=str,
                         help="Object category",
-                        default="WashingMachine")
+                        required=True)
     parser.add_argument('--task_config_path',
                         type=str,
                         help="Task config path, if you want to load an existing rather than generating one.",

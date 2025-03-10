@@ -64,28 +64,31 @@ Example Output: ["in, spoon, drawer", "away, fork, plate, 1.5"]
 
 def separate_operations(operations):
     on_table = []
+    on_floor = []
     other_operations = []
 
     for op in operations:
         parts = [p.strip() for p in op.split(',')]  # Split by comma and trim spaces
-        if len(parts) == 3 and parts[0] == "on" and parts[2] == "table":
-            on_table.append(parts[1])  # Extract object name
+        if len(parts) == 3 and parts[0] == "on":
+            if parts[2] == "table":
+                on_table.append(parts[1])
+            elif parts[2] == "floor":
+                on_floor.append(parts[1])
         else:
             other_operations.append(op)  # Keep the full operation string
 
-    return on_table, other_operations
+    return on_table, on_floor, other_operations
 
 def update_config_with_str(task_config, editing_operations):
      # Validate the updated config
     try:
         operations = ast.literal_eval(editing_operations.strip())
-        on_table_objects, operations = separate_operations(operations)
+        on_table_objects, on_floor_objects, operations = separate_operations(operations)
     except:
         print("Invalid reflection updated, not changing anything")
         on_table_objects = []
+        on_floor_objects = []
         operations = []
-
-
 
     for config in task_config:
         # Update on_table parameter
@@ -93,6 +96,8 @@ def update_config_with_str(task_config, editing_operations):
             if "name" in config and "on_table" in config:
                 if config["name"] in on_table_objects:
                     config["on_table"] = True
+                if config["name"] in on_floor_objects:
+                    config["on_table"] = False
 
         if "spatial_relationships" in config:
             config["spatial_relationships"].extend(operations)

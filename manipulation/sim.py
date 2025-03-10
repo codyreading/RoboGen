@@ -36,7 +36,8 @@ class SimpleEnv(gym.Env):
                     randomize=0, # if to randomize the scene
                     obj_id=0, # which object to choose to use from the candidates
                     visualize=False,
-                    output_dir=None
+                    output_dir=None,
+                    debug=False
                 ):
 
         super().__init__()
@@ -55,6 +56,7 @@ class SimpleEnv(gym.Env):
         self.randomize = randomize
         self.obj_id = obj_id # which object to choose to use from the candidates
         self.visualize = visualize
+        self.debug = debug
         self.output_dir = output_dir
 
         # physics
@@ -247,13 +249,13 @@ class SimpleEnv(gym.Env):
         ### resolve collisions between objects
         self.resolve_collision(robot_base_pos, object_height, spatial_relationships)
 
-        if self.visualize:
+        if self.visualize and self.debug:
             self.visualize_scene(step="resolve_collisions")
 
         ### handle any special relationships outputted by GPT
         self.handle_gpt_special_relationships(spatial_relationships)
 
-        if self.visualize:
+        if self.visualize and self.debug:
             self.visualize_scene(step="editing_operations")
 
         ### set all object's joint angles to the lower joint limit
@@ -732,6 +734,20 @@ class SimpleEnv(gym.Env):
         return True
 
 
+    def is_valid_objects(self, obj_a, obj_b=None, obj_c=None):
+        if obj_a not in self.urdf_ids:
+            print(f"Invalid object: {obj_a}")
+            return False
+
+        if obj_b is not None and obj_b not in self.urdf_ids:
+            print(f"Invalid object: {obj_b}")
+            return False
+
+        if obj_c is not None and obj_c not in self.urdf_ids:
+            print(f"Invalid object: {obj_b}")
+            return False
+
+        return True
 
     def handle_gpt_special_relationships(self, spatial_relationships):
 
@@ -764,6 +780,9 @@ class SimpleEnv(gym.Env):
                         obj_a = "init_table"
                     if obj_b == "table":
                         obj_b = "init_table"
+
+                if not self.is_valid_objects(obj_a, obj_b):
+                    continue
 
                 obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
                 obj_a_pos, _ = p.getBasePositionAndOrientation(obj_a_id)
@@ -813,6 +832,10 @@ class SimpleEnv(gym.Env):
                     obj_b_link_id = get_link_id_from_name(self, obj_b, obj_b_link)
                 else:
                     obj_b_link_id = -1
+
+                if not self.is_valid_objects(obj_a, obj_b):
+                    continue
+
                 obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
 
                 # if after a lot of trying times, there is still collision, we should scale down the size of object A.
@@ -846,6 +869,9 @@ class SimpleEnv(gym.Env):
                 obj_b = words[2]
                 distance_factor = float(words[3])
 
+                if not self.is_valid_objects(obj_a, obj_b):
+                    continue
+
                 # Get positions of objects
                 obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]
                 pos_a, orient_a = p.getBasePositionAndOrientation(obj_a_id, physicsClientId=self.id)
@@ -865,6 +891,10 @@ class SimpleEnv(gym.Env):
                 obj_a = words[1]
                 obj_b = words[2]
                 obj_c = words[3]
+
+                if not self.is_valid_objects(obj_a, obj_b, obj_c):
+                    continue
+
 
                 # Get positions of objects
                 obj_a_id, obj_b_id, obj_c_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b], self.urdf_ids[obj_c]
@@ -887,6 +917,9 @@ class SimpleEnv(gym.Env):
                 obj_a = words[1]
                 rescale_factor = float(words[2])
                 rescale_factor = clamp(rescale_factor)
+
+                if not self.is_valid_objects(obj_a):
+                    continue
 
                 # Get object parameters
                 obj_a_id = self.urdf_ids[obj_a]
@@ -923,6 +956,9 @@ class SimpleEnv(gym.Env):
                 obj_a = words[1]
                 obj_b = words[2]
                 distance = float(words[3])
+
+                if not self.is_valid_objects(obj_a, obj_b):
+                    continue
 
                 # Get positions of objects
                 obj_a_id, obj_b_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b]

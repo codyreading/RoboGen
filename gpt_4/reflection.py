@@ -81,7 +81,7 @@ def revise_task_config_from_reflection(task_config_path, reflection, temperature
     return revised_task_config_path
 
 
-def edit_task_config(output_dir, task_config_path, category, task, image_dir, model_dict, temperature_dict):
+def reflect_task_config(output_dir, task_config_path, category, task, image_dir, model_dict, temperature_dict):
     # Get images
     simulated_image = get_simulated_image(task_config_path)
     real_image = get_real_image(category=category, image_dir=image_dir)
@@ -92,6 +92,12 @@ def edit_task_config(output_dir, task_config_path, category, task, image_dir, mo
                              real_images=[real_image],
                              temperature=temperature_dict["reflection"],
                              model=model_dict["reflection"])
+
+    # Save reflection
+    reflection_path = Path(task_config_path).parents[0] / "reflection.txt"
+    with open(reflection_path, "w") as file:
+        file.write(reflection)
+
 
     # Update configs
     updated_config_path = revise_task_config_from_reflection(

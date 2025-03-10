@@ -5,12 +5,34 @@ import json
 import base64
 import cv2
 
-def encode_images_to_base64(images, quality=90):
+def resize_image(image, min_dim=512):
+    # Get the current dimensions of the image
+    h, w = image.shape[:2]
+
+    # Calculate the scaling factor
+    if h > w:
+        scale_factor = min_dim / h
+    else:
+        scale_factor = min_dim / w
+
+    # Calculate the new dimensions
+    new_h = int(h * scale_factor)
+    new_w = int(w * scale_factor)
+
+    # Resize the image while maintaining the aspect ratio
+    resized_image = cv2.resize(image, (new_w, new_h))
+    return resized_image
+
+def encode_images_to_base64(images):
     base64_images = []
 
     for image in images:
         # Convert BGR to RGB (if needed, since OpenCV loads images in BGR by default)
         bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        # Resize image if too large
+        if bgr_image.shape[0] > 512 and bgr_image.shape[1] > 512:
+            bgr_image = resize_image(bgr_image)
 
        # Encode the image to JPEG format
         _, buffer = cv2.imencode(".jpg", bgr_image)
