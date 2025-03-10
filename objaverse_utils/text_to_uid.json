@@ -7457,5 +7457,103 @@
         "263e0dc50524432c904e50376ef37a39",
         "ea815ef83dc4462d8b90c4b153e51ae8",
         "ea815ef83dc4462d8b90c4b153e51ae8"
+    ],
+    "a pair of cleaning gloves": [
+        "437e50e2a7b441ba87d54392c39c0baf",
+        "ef128b0efbb1461c8c0f37b83b5f17af"
+    ],
+    "a pair of cleaning gloves_all": [
+        "4c2bc301874a4673bb11f55f285748a9",
+        "7e1f3ac6d6454129a37247ba4f758442",
+        "437e50e2a7b441ba87d54392c39c0baf",
+        "b500ca40649d4e31ad98d4ab54474995",
+        "ef128b0efbb1461c8c0f37b83b5f17af",
+        "4485e236902848ccbb06939f3501f5e1"
+    ],
+    "a blue plastic bag": [
+        "e4dff516be144814927adeca1e99e348"
+    ],
+    "a blue plastic bag_all": [
+        "ce7f0fac7a4f43cb9b6700f1ed7742a8",
+        "3f236cdadf434521b27f0a9d9a4e9939",
+        "b91fdb59320d48189c9d6047a1411836",
+        "ee25d63ef5384a38b2e82605d851f1b9",
+        "e4dff516be144814927adeca1e99e348",
+        "e4d7aa9d4f2d4b37a2afd221c0392d2a"
+    ],
+    "an orange bag": [
+        "c141fa63960146bfa4bc00684c4743e5",
+        "d5cb92f6e9b44a7d8f1818f701c31d7d"
+    ],
+    "an orange bag_all": [
+        "c141fa63960146bfa4bc00684c4743e5",
+        "cc81397b429f44d39dc822d5d85609c3",
+        "d5cb92f6e9b44a7d8f1818f701c31d7d",
+        "5a7fdd508d3647e38342931f676ff874",
+        "2a21162b6c47416fb9b0094a7a3fe9e8",
+        "d6921528881c4776a38a35ba52e328c6"
+    ],
+    "a crumpled paper": [
+        "8f525159f9664a5a9bfd784515b4e96d",
+        "f636d08954c148d7a4cfcc3d28221257"
+    ],
+    "a crumpled paper_all": [
+        "f19ea7ce149c4b25a527abecec1da524",
+        "79cd710ac9714f599cce01ab3a50b5e9",
+        "8f525159f9664a5a9bfd784515b4e96d",
+        "f636d08954c148d7a4cfcc3d28221257",
+        "d6aeb0bb1c684d399a1b77789d7beaf4",
+        "f3167ea836064dbfb5b4dfc8f1f99193"
+    ],
+    "a common set of drawers": [
+        "140728cbfa3a42c19d2402aabc88ff26"
+    ],
+    "a common set of drawers_all": [
+        "30f8acd4722847f4a1367b9879abe765",
+        "0b5ab99cdad94f5f8a390d54522f0f16",
+        "ae54ed6897e7487484f96e0aae64d39d",
+        "3496d71768e8462ebf58f94522f9083b",
+        "ec59105451294d4f98905381125c48cc",
+        "140728cbfa3a42c19d2402aabc88ff26"
+    ],
+    "a common pan": [
+        "3cf2b0e0d285408f97e2a33d6f19ee1c",
+        "8d09c5b3ec6f4b2d97ad367104aedcc9",
+        "6685b284b8ff4aab9ce1fb88072af3dc"
+    ],
+    "a common pan_all": [
+        "83bdabc8afd940439b1287236a460eaf",
+        "3cf2b0e0d285408f97e2a33d6f19ee1c",
+        "83bdabc8afd940439b1287236a460eaf",
+        "8d09c5b3ec6f4b2d97ad367104aedcc9",
+        "a7c6610ef4144813b16a8dfa3abe40fd",
+        "6685b284b8ff4aab9ce1fb88072af3dc"
+    ],
+    "a common lid": [
+        "1b7eb821d98c484b8fcd5e32b8a13888",
+        "0484a45547114a46be39022b66726bcd",
+        "69aa3688b51041bebb34123b3547a092",
+        "e49d29f9a6f94a8cb62ca0a8e1cc1bfe",
+        "97e50f021e47477c894cd73b63249889",
+        "74ff9874a35446b0a050a8bc8a76e763"
+    ],
+    "a common lid_all": [
+        "1b7eb821d98c484b8fcd5e32b8a13888",
+        "0484a45547114a46be39022b66726bcd",
+        "69aa3688b51041bebb34123b3547a092",
+        "e49d29f9a6f94a8cb62ca0a8e1cc1bfe",
+        "97e50f021e47477c894cd73b63249889",
+        "74ff9874a35446b0a050a8bc8a76e763"
+    ],
+    "a common spatula": [
+        "80870db1713949d5a750f510a6dbce54"
+    ],
+    "a common spatula_all": [
+        "d0d74ad6b32f487abf0ff3de6ad7cb32",
+        "80870db1713949d5a750f510a6dbce54",
+        "2a126b14e0a4451eb53f1f60573a2822",
+        "2d47c47f620a4b85911e1312531f43f4",
+        "83f49e6179f94f6b887bd175c84403b4",
+        "255db0f33e984f8e80cb7ff63f23097d"
     ]
 }

@@ -40,6 +40,7 @@ task_name: task name
 
 Please generate a list of editing operations to resolve the feedback. The available editing operations are:
 on, obj_A, obj_B: Put object A on top of object B (e.g., a fork on the table).
+in, obj_A, obj_B: Put object A inside of object B (e.g., a spoon in a drawer).
 towards, obj_A, obj_B, distance_factor: Move object A towards object B. The distance_factor (0-1) controls how close object A moves; 0 means no movement, 1 means A reaches B.
 away, obj_A, obj_B, distance_factor: Move object A away from object B. The distance_factor (>1) scales how far A moves; ex. 2 will move A double its current distance from B
 between, obj_A, obj_B, obj_C: Place object A between object B and object C, ensuring equal spacing between them.
@@ -56,19 +57,43 @@ Here is the feedback describing the issues:
 
 Make only the changes to fix the issues in the feedback. Return a valid list of editing operations based on the available operations. Do not include extra explanations.
 
-Example Output: ["on, for, table", "away, fork, plate, 1.5"]
+Example Output: ["in, spoon, drawer", "away, fork, plate, 1.5"]
 """
     return system, prompt
+
+
+def separate_operations(operations):
+    on_table = []
+    other_operations = []
+
+    for op in operations:
+        parts = [p.strip() for p in op.split(',')]  # Split by comma and trim spaces
+        if len(parts) == 3 and parts[0] == "on" and parts[2] == "table":
+            on_table.append(parts[1])  # Extract object name
+        else:
+            other_operations.append(op)  # Keep the full operation string
+
+    return on_table, other_operations
 
 def update_config_with_str(task_config, editing_operations):
      # Validate the updated config
     try:
         operations = ast.literal_eval(editing_operations.strip())
+        on_table_objects, operations = separate_operations(operations)
     except:
         print("Invalid reflection updated, not changing anything")
+        on_table_objects = []
         operations = []
 
+
+
     for config in task_config:
+        # Update on_table parameter
+        if len(on_table_objects) > 0:
+            if "name" in config and "on_table" in config:
+                if config["name"] in on_table_objects:
+                    config["on_table"] = True
+
         if "spatial_relationships" in config:
             config["spatial_relationships"].extend(operations)
 
