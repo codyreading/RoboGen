@@ -708,6 +708,31 @@ class SimpleEnv(gym.Env):
         # No collisions found
         return False
 
+    def place_object_inside(self, obj_a_id, obj_b_id, obj_b_link_id):
+
+        #TODO Place inside such that bboxes have best fit
+
+        # Get values
+        pos_a, orn_a = p.getBasePositionAndOrientation(obj_a_id)
+        obj_a_bbox_min, obj_a_bbox_max = self.get_aabb(obj_a_id)
+        target_bbox_min, target_bbox_max = self.get_aabb_link(obj_b_id, obj_b_link_id)
+
+        # Compute target center
+        obj_a_center = (obj_a_bbox_min + obj_a_bbox_max) / 2
+        target_center = (target_bbox_min + target_bbox_max) / 2
+
+        # Compute offset relative to geometric center
+        center_offset = np.array(pos_a) - obj_a_center
+
+        # Apply offset
+        new_pos = target_center + center_offset
+
+        # Move object to new position
+        p.resetBasePositionAndOrientation(obj_a_id, new_pos, orn_a)
+        return True
+
+
+
     def handle_gpt_special_relationships(self, spatial_relationships):
 
         # Sort to do scaling first
@@ -796,47 +821,24 @@ class SimpleEnv(gym.Env):
                 obj_a_new_size = self.simulator_sizes[obj_a]
                 obj_a_ori_pos, obj_a_orientation = p.getBasePositionAndOrientation(obj_a_id, physicsClientId=self.id)
 
-                try:
-                    target_aabb_min, target_aabb_max = self.get_aabb_link(obj_b_id, obj_b_link_id)
 
-                    while not collision_free:
-                        if cnt % 100 == 0:
-                            print("scaling down! object size is {}".format(obj_a_new_size))
-                            obj_a_new_size = obj_a_new_size * 0.9
-                            p.removeBody(obj_a_id, physicsClientId=self.id)
-                            obj_a_id = p.loadURDF(self.urdf_paths[obj_a],
-                                                basePosition=obj_a_ori_pos,
-                                                baseOrientation=obj_a_orientation,
-                                                physicsClientId=self.id, useFixedBase=False, globalScaling=obj_a_new_size)
-                            self.urdf_ids[obj_a] = obj_a_id
-                            self.simulator_sizes[obj_a] = obj_a_new_size
+                while not collision_free:
+                    if cnt % 100 == 0:
+                        print("scaling down! object size is {}".format(obj_a_new_size))
+                        obj_a_new_size = obj_a_new_size * 0.9
+                        p.removeBody(obj_a_id, physicsClientId=self.id)
+                        obj_a_id = p.loadURDF(self.urdf_paths[obj_a],
+                                            basePosition=obj_a_ori_pos,
+                                            baseOrientation=obj_a_orientation,
+                                            physicsClientId=self.id, useFixedBase=False, globalScaling=obj_a_new_size)
+                        self.urdf_ids[obj_a] = obj_a_id
+                        self.simulator_sizes[obj_a] = obj_a_new_size
 
-                        obj_a_bbox_min, obj_a_bbox_max = self.get_aabb(obj_a_id)
-                        obj_a_size = obj_a_bbox_max - obj_a_bbox_min
-                        id_line = p.addUserDebugLine(target_aabb_min, target_aabb_max, [1, 0, 0], lineWidth=10, lifeTime=0, physicsClientId=self.id)
-                        id_point = p.addUserDebugPoints([(target_aabb_min + target_aabb_max) / 2], [[0, 0, 1]], 10, 0, physicsClientId=self.id)
+                    self.place_object_inside(obj_a_id, obj_b_id, obj_b_link_id)
 
-                        center_pos = (target_aabb_min + target_aabb_max) / 2
-                        up_pos = center_pos.copy()
-                        up_pos[2] += obj_a_size[2]
-                        possible_locations = [center_pos, up_pos]
-                        obj_a_orientation = p.getQuaternionFromEuler([np.pi/2, 0, 0], physicsClientId=self.id)
-                        for pos in possible_locations: # we try two possible locations to put obj a in obj b
-                            p.resetBasePositionAndOrientation(obj_a_id, pos, obj_a_orientation, physicsClientId=self.id)
-                            contact_points = p.getClosestPoints(obj_a_id, obj_b_id, 0.002, physicsClientId=self.id)
-
-                            if len(contact_points) == 0:
-                                collision_free = True
-                                break
-
-                        p.removeUserDebugItem(id_line, physicsClientId=self.id)
-                        p.removeUserDebugItem(id_point, physicsClientId=self.id)
-
-                        cnt += 1
-                        if cnt > 1000: # if after scaling for 10 times it still does not work, let it be.
-                            break
-                except:
-                    continue
+                    cnt += 1
+                    if cnt > 1000: # if after scaling for 10 times it still does not work, let it be.
+                        break
 
             # Move object A towards object B by interpolating along a straight line
             if words[0] == "towards" or words[0] == "away":
@@ -894,10 +896,21 @@ class SimpleEnv(gym.Env):
                 # Rescale
                 new_size_a = size_a * rescale_factor
 
+                # Get object height relative to center
+                obj_a_bbox_min, _ = self.get_aabb(obj_a_id)
+                height = pos_a[2] - obj_a_bbox_min[2]
+
+                # Compute new height
+                new_height = rescale_factor * height
+
+                # Compute new Z position
+                new_pos_a = np.array(pos_a)
+                new_pos_a[2] = obj_a_bbox_min[2] + new_height
+
                 # Update environment
                 p.removeBody(obj_a_id, physicsClientId=self.id)
                 obj_a_id = p.loadURDF(self.urdf_paths[obj_a],
-                                      basePosition=pos_a,
+                                      basePosition=tuple(new_pos_a),
                                       baseOrientation=orient_a,
                                       physicsClientId=self.id,
                                       useFixedBase=False,

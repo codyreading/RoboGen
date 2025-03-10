@@ -38,7 +38,17 @@ def main(args):
     config_dir = find_first_directory_starting_with(args.config_dir, prefix=args.category)
     config_paths = list(config_dir.glob("*.yaml"))
 
-    if args.single_thread:
+    if args.single_type is not None:
+        config_paths = list(config_dir.glob("*.yaml"))
+
+        if args.single_type == "edited":
+            config_path = next((p for p in config_paths if p.name.endswith("_edited.yaml")), None)
+        else:
+            config_path = next((p for p in config_paths if not p.name.endswith("_edited.yaml")), None)
+
+        manipulation.visualize(config_path=config_path, output_dir=output_dir)
+
+    elif args.single_thread:
         for config_path in config_paths:
             manipulation.visualize(config_path=config_path, output_dir=output_dir)
     else:
@@ -75,6 +85,10 @@ if __name__ == "__main__":
     parser.add_argument('--single_thread',
                         action="store_true",
                         help='Only run in a single thread')
+    parser.add_argument('--single_type',
+                        type=str,
+                        default=None,
+                        help='Only visualize single one')
     # Parse the arguments
     args = parser.parse_args()
     main(args)
