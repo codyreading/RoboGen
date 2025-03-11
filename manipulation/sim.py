@@ -37,7 +37,7 @@ class SimpleEnv(gym.Env):
                     obj_id=0, # which object to choose to use from the candidates
                     visualize=False,
                     output_dir=None,
-                    debug=False
+                    debug=True
                 ):
 
         super().__init__()
@@ -245,6 +245,9 @@ class SimpleEnv(gym.Env):
         ### adjusting object positions
         ### place the lowest point on the object to be the height where GPT specifies
         object_height = self.adjust_object_positions(robot_base_pos)
+
+        if self.visualize and self.debug:
+            self.visualize_scene(step="place_objects")
 
         ### resolve collisions between objects
         self.resolve_collision(robot_base_pos, object_height, spatial_relationships)
@@ -830,6 +833,9 @@ class SimpleEnv(gym.Env):
                 if len(words) == 4:
                     obj_b_link = words[3]
                     obj_b_link_id = get_link_id_from_name(self, obj_b, obj_b_link)
+
+                    if obj_b_link_id is None:
+                        obj_b_link_id = -1
                 else:
                     obj_b_link_id = -1
 
@@ -894,7 +900,6 @@ class SimpleEnv(gym.Env):
 
                 if not self.is_valid_objects(obj_a, obj_b, obj_c):
                     continue
-
 
                 # Get positions of objects
                 obj_a_id, obj_b_id, obj_c_id = self.urdf_ids[obj_a], self.urdf_ids[obj_b], self.urdf_ids[obj_c]

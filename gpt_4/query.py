@@ -30,10 +30,6 @@ def encode_images_to_base64(images):
         # Convert BGR to RGB (if needed, since OpenCV loads images in BGR by default)
         bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        # Resize image if too large
-        if bgr_image.shape[0] > 512 and bgr_image.shape[1] > 512:
-            bgr_image = resize_image(bgr_image)
-
        # Encode the image to JPEG format
         _, buffer = cv2.imencode(".jpg", bgr_image)
 
@@ -110,10 +106,9 @@ def query_vlm(system, images, prompt, model='gpt-4o', temperature=0.3):
         image_dict = {"type": "image_url", "image_url": {"url": image_64, "detail": "low"}}
         content.append(image_dict)
 
-    messages = [{
-        "role": "user",
-        "content": content
-    }]
+    messages = []
+    messages.append({"role": "system", "content": "{}".format(system)})
+    messages.append({"role": "user", "content": content})
 
     response = openai.ChatCompletion.create(
         model=model,

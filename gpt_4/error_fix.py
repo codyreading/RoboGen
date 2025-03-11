@@ -1,3 +1,4 @@
+import ast
 import yaml
 from utils import editing_utils
 
@@ -17,10 +18,10 @@ def is_valid_relationship(relationship, objects):
     elif words[0] in three_object_worlds:
         relationship_objects = [words[1], words[2], words[3]]
 
-    valid = all(element in relationship_objects for element in objects)
+    valid = all(element in objects for element in relationship_objects)
     return valid
 
-def error_fix_task_config(config_path, max_dist=1.5):
+def error_fix_task_config(config_path, max_dist=1.0):
     with open(config_path, 'r') as file:
         task_config = yaml.safe_load(file)
 
@@ -28,8 +29,11 @@ def error_fix_task_config(config_path, max_dist=1.5):
     objects = []
     for config in task_config:
         if "name" in config:
-            config["center"] = editing_utils.limit_range(config["center"], distance=max_dist)
-            objects.append(config["name"])
+            center = config["center"]
+            center = ast.literal_eval(center)
+            center = editing_utils.limit_range(center, distance=max_dist)
+            config["center"] = str(center)
+            objects.append(config["name"].lower())
 
     # Ensure all relationships are valid objects
     for config in task_config:

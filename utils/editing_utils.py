@@ -72,24 +72,24 @@ def limit_range(pos_a, distance):
     Returns:
     tuple: New position (x, y, z) at the specified distance from origin along the same direction.
     """
-    # Convert input to numpy array if it's not already
-    pos_a = np.array(pos_a, dtype=float)
+    # Convert input to numpy array if it's not already for XY
+    pos_a_np = np.array(pos_a, dtype=float)[:2]
 
     # Calculate the current distance from origin (norm of the vector)
-    current_distance = np.linalg.norm(pos_a)
+    current_distance = np.linalg.norm(pos_a_np)
 
-    # If current_distance is zero, we can't determine direction
-    if current_distance == 0:
-        return (0.0, 0.0, 0.0)
+    # Return if already within limit
+    if current_distance <= distance:
+        return pos_a
 
     # Calculate the unit vector in the direction of pos_a
-    unit_vector = pos_a / current_distance
+    unit_vector = pos_a_np / current_distance
 
     # Scale the unit vector by the desired distance
     new_pos = unit_vector * distance
 
-    # Convert numpy array back to tuple
-    return tuple(new_pos)
+    # Return modified XY
+    return (new_pos[0], new_pos[1], pos_a[2])
 
 
 def between(pos_a, pos_b, pos_c):

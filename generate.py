@@ -81,8 +81,6 @@ def main(args):
     else:
         task_config_paths = [args.task_config_path]
 
-    error_fix_task_configs(task_config_paths)
-
     # Edit task configs
     edited_task_config_paths = reflect_task_configs(output_dir=output_dir,
                                                     task_config_paths=task_config_paths,
