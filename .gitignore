@@ -11,7 +11,6 @@ data
 *.whl
 output*
 logs*
-error*
 Archive
 .vscode
 objaverse_utils

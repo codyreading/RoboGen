@@ -61,6 +61,37 @@ def extrapolate(pos_a, pos_b, factor):
     # Keep the Z coordinate from pos_a
     return (x_extrapolated, y_extrapolated, z_a)
 
+def limit_range(pos_a, distance):
+    """
+    Places pos_a along the line connecting to the origin, at the specified distance.
+
+    Parameters:
+    pos_a (tuple or numpy.ndarray): Tuple or array of (x, y, z) representing the position.
+    distance (float): Distance from the origin where the position should be.
+
+    Returns:
+    tuple: New position (x, y, z) at the specified distance from origin along the same direction.
+    """
+    # Convert input to numpy array if it's not already
+    pos_a = np.array(pos_a, dtype=float)
+
+    # Calculate the current distance from origin (norm of the vector)
+    current_distance = np.linalg.norm(pos_a)
+
+    # If current_distance is zero, we can't determine direction
+    if current_distance == 0:
+        return (0.0, 0.0, 0.0)
+
+    # Calculate the unit vector in the direction of pos_a
+    unit_vector = pos_a / current_distance
+
+    # Scale the unit vector by the desired distance
+    new_pos = unit_vector * distance
+
+    # Convert numpy array back to tuple
+    return tuple(new_pos)
+
+
 def between(pos_a, pos_b, pos_c):
     new_pos_a = interpolate(pos_b, pos_c, factor=0.5)
     new_pos_a = (new_pos_a[0], new_pos_a[1], pos_a[2])
